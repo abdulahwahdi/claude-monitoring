@@ -1,3 +1,11 @@
+claude-monitoring (2.0.0) unstable; urgency=medium
+
+  * Renamed from claude-usage-linux to claude-monitoring: package, command,
+    Python module, config folder and repository. The new package replaces
+    the old one; re-run the installer to migrate.
+
+ -- Abdulah Wahdi <abdulah.wahdi@gmail.com>  Fri, 02 Oct 2026 14:10:39 +0700
+
 claude-usage-linux (1.1.1) unstable; urgency=medium
 
   * Install modules into /usr/lib/python3/dist-packages so the package works

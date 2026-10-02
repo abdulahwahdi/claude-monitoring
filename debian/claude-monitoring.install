@@ -1,0 +1,3 @@
+packaging/claude-monitoring.desktop etc/xdg/autostart/
+packaging/claude-monitoring.desktop usr/share/applications/
+packaging/claude-monitoring.svg usr/share/icons/hicolor/scalable/apps/

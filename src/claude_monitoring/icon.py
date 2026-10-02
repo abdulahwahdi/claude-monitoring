@@ -15,9 +15,9 @@ INNER = (6.5, 2.0)
 def cache_dir(env=os.environ) -> str:
     base = env.get("XDG_RUNTIME_DIR")
     if base and os.path.isdir(base):
-        path = os.path.join(base, "claude-usage-linux")
+        path = os.path.join(base, "claude-monitoring")
     else:
-        path = os.path.join(os.path.expanduser("~/.cache"), "claude-usage-linux")
+        path = os.path.join(os.path.expanduser("~/.cache"), "claude-monitoring")
     os.makedirs(path, exist_ok=True)
     return path
 

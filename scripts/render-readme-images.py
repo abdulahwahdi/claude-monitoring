@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from claude_usage_linux.icon import build_svg  # noqa: E402
+from claude_monitoring.icon import build_svg  # noqa: E402
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "docs", "img")
 FONT = "font-family=\"-apple-system,'Segoe UI',Ubuntu,Cantarell,'DejaVu Sans',sans-serif\""
@@ -74,7 +74,7 @@ def hero():
         y += 34
     # Tagline on the left
     p.append(icon(42, 17, 40, 82, 96))
-    p.append('<text x="40" y="218" %s font-size="30" font-weight="700" fill="#f9fafb">claude-usage-linux</text>' % FONT)
+    p.append('<text x="40" y="218" %s font-size="30" font-weight="700" fill="#f9fafb">claude-monitoring</text>' % FONT)
     p.append('<text x="40" y="246" %s font-size="15" fill="#9ca3af">Your Claude limits, in the panel.</text>' % FONT)
     p.append("</svg>\n")
     return "".join(p)
@@ -119,7 +119,7 @@ def social():
         '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">'
         '<stop offset="0" stop-color="#1f2937"/><stop offset="1" stop-color="#0b1220"/></linearGradient></defs>'
         '<rect width="1280" height="640" fill="url(#bg)"/>' + mark +
-        '<text x="420" y="300" %s font-size="72" font-weight="700" fill="#f9fafb">claude-usage-linux</text>' % FONT +
+        '<text x="420" y="300" %s font-size="72" font-weight="700" fill="#f9fafb">claude-monitoring</text>' % FONT +
         '<text x="420" y="370" %s font-size="34" fill="#9ca3af">Your Claude limits, in the Linux panel.</text>' % FONT +
         '<text x="420" y="440" %s font-size="26" fill="#6b7280">KDE · GNOME · XFCE · Cinnamon · MATE</text>' % FONT +
         "</svg>\n"
@@ -127,7 +127,7 @@ def social():
 
 
 if __name__ == "__main__":
-    with open(os.path.join(os.path.dirname(__file__), "..", "packaging", "claude-usage-linux.svg"), "w") as f:
+    with open(os.path.join(os.path.dirname(__file__), "..", "packaging", "claude-monitoring.svg"), "w") as f:
         f.write(logo())
     os.makedirs(OUT, exist_ok=True)
     for name, svg in (("hero.svg", hero()), ("states.svg", states()), ("social-preview.svg", social())):

@@ -52,7 +52,7 @@ def _import_gi():
             from gi.repository import AppIndicator3 as AppIndicator
         from gi.repository import GLib, Gtk
     except (ImportError, ValueError) as exc:
-        print("claude-usage-linux needs PyGObject, GTK 3 and AppIndicator typelibs (%s).\n"
+        print("claude-monitoring needs PyGObject, GTK 3 and AppIndicator typelibs (%s).\n"
               "Debian/Ubuntu: sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 "
               "gir1.2-ayatanaappindicator3-0.1" % exc, file=sys.stderr)
         sys.exit(1)
@@ -72,7 +72,7 @@ class TrayApp:
         self.icon_dir = icon.cache_dir()
         path = icon.render_icon(None, None, "error", self.icon_dir)
         self.indicator = AppIndicator.Indicator.new(
-            "claude-usage-linux", os.path.splitext(os.path.basename(path))[0],
+            "claude-monitoring", os.path.splitext(os.path.basename(path))[0],
             AppIndicator.IndicatorCategory.APPLICATION_STATUS)
         self.indicator.set_icon_theme_path(self.icon_dir)
         self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
@@ -246,9 +246,9 @@ def main():
     lock = instance.acquire(icon.cache_dir())
     if lock is None:
         if instance.notify_running(icon.cache_dir()):
-            print("claude-usage-linux is already running; showing its window.")
+            print("claude-monitoring is already running; showing its window.")
         else:
-            print("claude-usage-linux is already running.")
+            print("claude-monitoring is already running.")
         return
     TrayApp().start()
 

@@ -5,7 +5,7 @@ import unittest
 import urllib.error
 from datetime import datetime, timedelta, timezone
 
-from claude_usage_linux import usage as u
+from claude_monitoring import usage as u
 
 NOW = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
 

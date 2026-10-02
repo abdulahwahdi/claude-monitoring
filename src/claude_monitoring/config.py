@@ -1,4 +1,4 @@
-"""Small config loader: env vars override ~/.config/claude-usage-linux/config.json."""
+"""Small config loader: env vars override ~/.config/claude-monitoring/config.json."""
 
 import json
 import os
@@ -18,8 +18,13 @@ class Config:
 
 
 def config_path(env=os.environ):
+    """The config file, falling back to the pre-2.0.0 claude-usage-linux one."""
     base = env.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
-    return os.path.join(base, "claude-usage-linux", "config.json")
+    path = os.path.join(base, "claude-monitoring", "config.json")
+    old = os.path.join(base, "claude-usage-linux", "config.json")
+    if not os.path.exists(path) and os.path.exists(old):
+        return old
+    return path
 
 
 def load_config(path=None, env=os.environ) -> Config:

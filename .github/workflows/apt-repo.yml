@@ -88,8 +88,8 @@ jobs:
         run: |
           # Modules must be in the version-independent path, or the package
           # only works on the runner's Python version.
-          contents=$(dpkg-deb -c ../claude-usage-linux_*_all.deb)
-          echo "$contents" | grep -q '/usr/lib/python3/dist-packages/claude_usage_linux/app.py'
+          contents=$(dpkg-deb -c ../claude-monitoring_*_all.deb)
+          echo "$contents" | grep -q '/usr/lib/python3/dist-packages/claude_monitoring/app.py'
           if echo "$contents" | grep -q '/usr/lib/python3\.[0-9]*/'; then
             echo "::error::modules installed into a version-specific python3.X directory"
             exit 1
@@ -102,10 +102,10 @@ jobs:
           latest=$(gh release list --limit 1 --json tagName -q '.[].tagName')
           if [ -n "$latest" ]; then
             # Tolerate releases without .deb assets (e.g. created by hand).
-            gh release download --pattern 'claude-usage-linux_*_all.deb' --dir debs --clobber || true
-            rm -f debs/claude-usage-linux_all.deb
+            gh release download --pattern 'claude-monitoring_*_all.deb' --dir debs --clobber || true
+            rm -f debs/claude-monitoring_all.deb
           fi
-          cp ../claude-usage-linux_*.deb debs/
+          cp ../claude-monitoring_*.deb debs/
 
       - name: Build apt repository
         env:
@@ -117,17 +117,17 @@ jobs:
           <html lang="en">
           <head>
           <meta charset="utf-8">
-          <title>claude-usage-linux apt repository</title>
+          <title>claude-monitoring apt repository</title>
           </head>
           <body>
-          <h1>claude-usage-linux apt repository</h1>
+          <h1>claude-monitoring apt repository</h1>
           <pre>
           sudo install -d -m 0755 /etc/apt/keyrings
-          sudo curl -fsSL https://abdulahwahdi.github.io/claude-usage-linux/claude-usage-linux.gpg -o /etc/apt/keyrings/claude-usage-linux.gpg
-          echo 'deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] https://abdulahwahdi.github.io/claude-usage-linux/ ./' | sudo tee /etc/apt/sources.list.d/claude-usage-linux.list
-          sudo apt update &amp;&amp; sudo apt install claude-usage-linux
+          sudo curl -fsSL https://abdulahwahdi.github.io/claude-monitoring/claude-monitoring.gpg -o /etc/apt/keyrings/claude-monitoring.gpg
+          echo 'deb [signed-by=/etc/apt/keyrings/claude-monitoring.gpg] https://abdulahwahdi.github.io/claude-monitoring/ ./' | sudo tee /etc/apt/sources.list.d/claude-monitoring.list
+          sudo apt update &amp;&amp; sudo apt install claude-monitoring
           </pre>
-          <p><a href="https://github.com/abdulahwahdi/claude-usage-linux">Source on GitHub</a></p>
+          <p><a href="https://github.com/abdulahwahdi/claude-monitoring">Source on GitHub</a></p>
           </body>
           </html>
           HTML
@@ -151,11 +151,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          deb="claude-usage-linux_${GITHUB_REF_NAME#v}_all.deb"
+          deb="claude-monitoring_${GITHUB_REF_NAME#v}_all.deb"
           mkdir -p release-assets
           cp "debs/$deb" "release-assets/$deb"
-          cp "debs/$deb" release-assets/claude-usage-linux_all.deb
-          (cd release-assets && sha256sum claude-usage-linux_*_all.deb claude-usage-linux_all.deb > SHA256SUMS && sha256sum -c SHA256SUMS)
+          cp "debs/$deb" release-assets/claude-monitoring_all.deb
+          (cd release-assets && sha256sum claude-monitoring_*_all.deb claude-monitoring_all.deb > SHA256SUMS && sha256sum -c SHA256SUMS)
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" release-assets/* --clobber
           else

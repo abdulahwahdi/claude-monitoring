@@ -4,12 +4,12 @@
 # Usage: build-apt-repo.sh <deb-dir> <out-dir>
 #
 # If APT_GPG_KEY_ID is set, Release is signed (Release.gpg, InRelease) and the
-# public key is exported to claude-usage-linux.gpg. APT_GPG_PASSPHRASE is
+# public key is exported to claude-monitoring.gpg. APT_GPG_PASSPHRASE is
 # optional. Without a key the repository is left unsigned.
 set -eu
 
-URL="https://abdulahwahdi.github.io/claude-usage-linux/"
-REPO="https://github.com/abdulahwahdi/claude-usage-linux"
+URL="https://abdulahwahdi.github.io/claude-monitoring/"
+REPO="https://github.com/abdulahwahdi/claude-monitoring"
 
 if [ "$#" -ne 2 ]; then
     echo "usage: $0 <deb-dir> <out-dir>" >&2
@@ -29,7 +29,7 @@ mkdir -p "$out_dir"
 cp "$@" "$out_dir"/
 cd "$out_dir"
 
-rm -f Packages Packages.gz Release Release.tmp Release.gpg InRelease claude-usage-linux.gpg
+rm -f Packages Packages.gz Release Release.tmp Release.gpg InRelease claude-monitoring.gpg
 
 if [ ! -e index.html ]; then
     cat > index.html <<HTML
@@ -37,15 +37,15 @@ if [ ! -e index.html ]; then
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>claude-usage-linux apt repository</title>
+<title>claude-monitoring apt repository</title>
 </head>
 <body>
-<h1>claude-usage-linux apt repository</h1>
+<h1>claude-monitoring apt repository</h1>
 <pre>
 sudo install -d -m 0755 /etc/apt/keyrings
-sudo curl -fsSL ${URL}claude-usage-linux.gpg -o /etc/apt/keyrings/claude-usage-linux.gpg
-echo "deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] ${URL} ./" | sudo tee /etc/apt/sources.list.d/claude-usage-linux.list
-sudo apt update &amp;&amp; sudo apt install claude-usage-linux
+sudo curl -fsSL ${URL}claude-monitoring.gpg -o /etc/apt/keyrings/claude-monitoring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/claude-monitoring.gpg] ${URL} ./" | sudo tee /etc/apt/sources.list.d/claude-monitoring.list
+sudo apt update &amp;&amp; sudo apt install claude-monitoring
 </pre>
 <p><a href="${REPO}">Source on GitHub</a></p>
 </body>
@@ -57,8 +57,8 @@ dpkg-scanpackages --multiversion . /dev/null > Packages
 gzip -9 -c Packages > Packages.gz
 
 apt-ftparchive \
-    -o APT::FTPArchive::Release::Origin=claude-usage-linux \
-    -o APT::FTPArchive::Release::Label=claude-usage-linux \
+    -o APT::FTPArchive::Release::Origin=claude-monitoring \
+    -o APT::FTPArchive::Release::Label=claude-monitoring \
     -o APT::FTPArchive::Release::Suite=stable \
     -o APT::FTPArchive::Release::Codename=stable \
     -o APT::FTPArchive::Release::Architectures=all \
@@ -77,8 +77,8 @@ gpg_sign() {
 if [ -n "${APT_GPG_KEY_ID:-}" ]; then
     gpg_sign -abs -o Release.gpg Release
     gpg_sign --clearsign -o InRelease Release
-    gpg --batch --yes --export "$APT_GPG_KEY_ID" > claude-usage-linux.gpg
-    if [ ! -s claude-usage-linux.gpg ]; then
+    gpg --batch --yes --export "$APT_GPG_KEY_ID" > claude-monitoring.gpg
+    if [ ! -s claude-monitoring.gpg ]; then
         echo "error: exported public key is empty" >&2
         exit 1
     fi

@@ -2,7 +2,7 @@
 
 import os
 
-INSTALLER_URL = "https://raw.githubusercontent.com/abdulahwahdi/claude-usage-linux/main/install.sh"
+INSTALLER_URL = "https://raw.githubusercontent.com/abdulahwahdi/claude-monitoring/main/install.sh"
 UPDATE_COMMAND = "curl -fsSL %s | sh" % INSTALLER_URL
 PIP_HINT = "Update with: pip install --user --upgrade ."
 PACKAGE_PREFIX = "/usr/lib/python3/"

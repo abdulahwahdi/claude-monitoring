@@ -3,7 +3,7 @@
 One-time setup:
 
 1. Generate a dedicated signing key and export it:
-   `gpg --quick-generate-key 'claude-usage-linux apt <email>' rsa4096 sign 3y`, then
+   `gpg --quick-generate-key 'claude-monitoring apt <email>' rsa4096 sign 3y`, then
    `gpg --armor --export-secret-keys <KEYID>`.
 2. Add the repository secret `APT_GPG_PRIVATE_KEY` (the armored private key) and,
    if the key has a passphrase, `APT_GPG_PASSPHRASE`. The workflow derives the key
@@ -15,7 +15,7 @@ One-time setup:
    "Tag vX.Y.Z is not allowed to deploy to github-pages".
 
 To release, bump `debian/changelog` (e.g. `dch -v X.Y.Z`) and `__version__` in
-`src/claude_usage_linux/__init__.py`, commit, then:
+`src/claude_monitoring/__init__.py`, commit, then:
 
 ```
 git tag vX.Y.Z && git push origin vX.Y.Z
@@ -37,13 +37,13 @@ Notes:
   never published. A manual `workflow_dispatch` run without a key builds but does
   not deploy.
 - Each tag release attaches the versioned .deb, a stable-name
-  `claude-usage-linux_all.deb` and `SHA256SUMS` (only for signed tag builds).
+  `claude-monitoring_all.deb` and `SHA256SUMS` (only for signed tag builds).
 - Older versions stay available because earlier release .debs are re-downloaded
   on each run.
 
 ## Images
 
 `scripts/render-readme-images.py` regenerates the README images, the app logo
-(`packaging/claude-usage-linux.svg`) and `docs/img/social-preview.svg` from the
+(`packaging/claude-monitoring.svg`) and `docs/img/social-preview.svg` from the
 tray icon code. After changing the social preview, re-export it to PNG at
 1280x640 and upload it under Settings > General > Social preview.
