@@ -1,3 +1,10 @@
+claude-monitoring (2.0.1) unstable; urgency=medium
+
+  * Menu rows use the usage window wording: percentage, status and reset
+    time, with the ring icon instead of a text progress bar.
+
+ -- Abdulah Wahdi <abdulah.wahdi@gmail.com>  Fri, 02 Oct 2026 14:30:35 +0700
+
 claude-monitoring (2.0.0) unstable; urgency=medium
 
   * Renamed from claude-usage-linux to claude-monitoring: package, command,
