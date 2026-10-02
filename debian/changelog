@@ -1,3 +1,9 @@
+claude-usage-linux (1.0.0) unstable; urgency=medium
+
+  * First stable release.
+
+ -- Abdulah Wahdi <abdulah.wahdi@gmail.com>  Fri, 02 Oct 2026 10:47:23 +0700
+
 claude-usage-linux (0.1.0) unstable; urgency=medium
 
   * Initial release.
