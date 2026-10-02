@@ -1,54 +1,66 @@
-# claude-usage-linux
+<div align="center">
 
-A tray indicator for Linux panels that shows your Claude usage next to the
-wifi, sound and battery icons.
+<img src="docs/img/hero.svg" alt="claude-usage-linux in a Linux top panel, with its menu open" width="820">
 
-- **Icon:** two concentric rings. The outer ring is the 5-hour window, the thinner
-  inner ring is the weekly window. Each ring has a faint track and its own colour:
-  green below 70%, amber 70–89%, red from 90%. The 5-hour percentage is drawn in the
-  centre. If something goes wrong the icon turns grey with a "!".
-- **Menu:** click the icon to see text progress bars, a severity dot, the percentage
-  and the reset time for both windows, plus `Refresh now` and `Quit`:
+<h1>claude-usage-linux</h1>
 
-  ```
-  🟢 5h      ▰▰▰▰▱▱▱▱▱▱  42%
-        resets in 2h 10m
-  🟢 Weekly  ▰▱▱▱▱▱▱▱▱▱  17%
-        resets in 3d 4h
-  ```
+<p><b>See your Claude usage limits in the Linux panel, next to wifi, sound and battery.</b></p>
 
-  Panels without an emoji font may show plain boxes instead of the severity dots.
-- **Log in…:** shown only when you are not logged in (no credentials, expired token,
-  or rejected token). It opens a terminal running the login command (default
-  `claude auth login`) and refreshes when that terminal closes. The app never
-  touches your token beyond reading it to query usage. It is hidden otherwise.
+<p>
+<a href="https://github.com/abdulahwahdi/claude-usage-linux/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/abdulahwahdi/claude-usage-linux?style=flat-square&color=3fb950"></a>
+<a href="https://github.com/abdulahwahdi/claude-usage-linux/actions/workflows/test.yml"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/abdulahwahdi/claude-usage-linux/test.yml?branch=main&style=flat-square&label=tests"></a>
+<img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab?style=flat-square">
+<a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-8b949e?style=flat-square"></a>
+</p>
 
-Works through StatusNotifierItem/AppIndicator: KDE, XFCE, Cinnamon, MATE, and GNOME
-with the extension below. Python 3.9+, standard library only at runtime.
+<p>
+<a href="#-install">Install</a> ·
+<a href="#-configuration">Configuration</a> ·
+<a href="#-troubleshooting">Troubleshooting</a>
+</p>
 
-## Dependencies
+</div>
 
-- Debian/Ubuntu: `sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1`
-- Fedora: `sudo dnf install python3-gobject libayatana-appindicator-gtk3`
-- Arch: `sudo pacman -S python-gobject libayatana-appindicator`
+## ✨ Features
 
-GNOME needs the "AppIndicator and KStatusNotifierItem Support" extension.
+- **Two rings, one glance.** The outer ring is the 5-hour window, the inner ring is
+  the weekly window. The centre shows the 5-hour percentage.
+- **Colour-coded.** Each ring turns amber at 70% and red at 90%.
+- **Reset times.** Click the icon for progress bars and when each window resets.
+- **One-click login.** If you're logged out, the menu shows **Log in…**, which opens
+  `claude auth login` in a terminal.
+- **Lightweight.** Python standard library only, no extra packages from pip.
 
-## Quick install (Debian/Ubuntu/Mint)
+<div align="center">
+<img src="docs/img/states.svg" alt="Icon states: green under 70%, amber 70 to 89%, red from 90%, grey when there is an error" width="640">
+</div>
+
+Works on any panel with StatusNotifierItem/AppIndicator support: KDE, XFCE,
+Cinnamon, MATE, and GNOME with the
+[AppIndicator extension](https://extensions.gnome.org/extension/615/appindicator-support/).
+
+## 📦 Install
+
+> [!TIP]
+> **Debian, Ubuntu or Mint:** use the one-line installer.
+> **Other distros:** use [pip](#from-source-any-distro).
+
+### One-line installer (Debian/Ubuntu/Mint)
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-usage-linux/main/install.sh | sh
 ```
 
-The [installer](install.sh) adds the signed apt repository below and installs
-the package (it asks for your sudo password). If the repository is not
-published yet, it installs the latest release .deb instead, after checking it
-against `SHA256SUMS`. To read it first, download it and run `sh install.sh`.
+Run it as your normal user, not with `sudo`. It asks for your password when it
+needs it. It adds a signed apt repository, so updates arrive with
+`sudo apt upgrade`. You can [read the script](install.sh) first.
 
-## Install from the apt repository (Debian/Ubuntu/Mint)
+Start it with `claude-usage-linux &`. From then on, it starts when you log in.
 
-The same steps the installer performs, done by hand. The repository is signed
-and hosted on GitHub Pages:
+<details>
+<summary><b>apt repository, step by step</b></summary>
+
+This does the same thing as the installer:
 
 ```sh
 sudo install -d -m 0755 /etc/apt/keyrings
@@ -57,136 +69,100 @@ echo 'deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] https://abdulahwa
 sudo apt update && sudo apt install claude-usage-linux
 ```
 
-Updates arrive through `sudo apt update && sudo apt upgrade`. Downloading the
-.deb directly or building it from source (next sections) remains available.
+</details>
 
-## Download the .deb (no build)
-
-Download the latest release asset, verify it and install it with apt (which
-resolves the dependencies):
+<details>
+<summary><b>Download the .deb (no auto-updates)</b></summary>
 
 ```sh
+cd "$(mktemp -d)"
 curl -fsSLO https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/claude-usage-linux_all.deb
 curl -fsSLO https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/SHA256SUMS
 sha256sum -c --ignore-missing SHA256SUMS
 sudo apt install ./claude-usage-linux_all.deb
 ```
 
-Specific versions are on the
-[Releases page](https://github.com/abdulahwahdi/claude-usage-linux/releases) as
-`claude-usage-linux_<version>_all.deb`. A manually installed .deb does not
-update itself; use the apt repository above for updates. To remove it:
+Keep the `./`. Without it, apt looks in its repositories instead of the file.
+Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude-usage-linux/releases).
+
+</details>
+
+### From source (any distro)
+
+1. Install the dependencies:
+
+   | Distro | Command |
+   |---|---|
+   | Debian/Ubuntu/Mint | `sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1` |
+   | Fedora | `sudo dnf install python3-gobject libayatana-appindicator-gtk3` |
+   | Arch | `sudo pacman -S python-gobject libayatana-appindicator` |
+
+2. Install, enable autostart and start it:
+
+   ```sh
+   git clone https://github.com/abdulahwahdi/claude-usage-linux.git
+   cd claude-usage-linux
+   pip install --user .
+   mkdir -p ~/.config/autostart
+   cp packaging/claude-usage-linux.desktop ~/.config/autostart/
+   claude-usage-linux &
+   ```
+
+   If pip says `externally-managed-environment`, use
+   `pipx install --system-site-packages .` instead.
+
+<details>
+<summary><b>Build your own .deb</b></summary>
 
 ```sh
-sudo apt remove claude-usage-linux
-```
-
-## Build and install the .deb from source
-
-Build the package from a checkout instead of using the repository:
-
-```
 sudo apt install devscripts debhelper dh-python pybuild-plugin-pyproject python3-setuptools
 dpkg-buildpackage -us -uc -b
 sudo apt install ../claude-usage-linux_*_all.deb
 ```
 
-apt resolves and installs the GTK and AppIndicator dependencies. The autostart
-entry is installed system-wide to `/etc/xdg/autostart`, so no manual copy is
-needed. To remove it:
+</details>
 
-```
-sudo apt remove claude-usage-linux
-```
+### Uninstall
 
-## Install with pip (other distros)
+| Installed with | Remove with |
+|---|---|
+| installer, apt or .deb | `sudo apt remove claude-usage-linux` |
+| pip | `pip uninstall claude-usage-linux && rm ~/.config/autostart/claude-usage-linux.desktop` |
 
-```
-pip install --user .
-```
+To also remove the apt repository:
+`sudo rm /etc/apt/sources.list.d/claude-usage-linux.list /etc/apt/keyrings/claude-usage-linux.gpg`
 
-In a virtualenv, create it with `--system-site-packages` so PyGObject is visible.
-Then run `claude-usage-linux`.
+## 🔧 Configuration
 
-### Autostart
-
-The .deb already installs the autostart entry. For a pip install, copy it yourself:
-
-```
-mkdir -p ~/.config/autostart
-cp packaging/claude-usage-linux.desktop ~/.config/autostart/
-```
-
-## Configuration
-
-Environment variables or `~/.config/claude-usage-linux/config.json`
-(env wins):
+Set these as environment variables or in `~/.config/claude-usage-linux/config.json`.
+If both are set, the environment variable wins.
 
 | Setting | Env | Default |
 |---|---|---|
-| `poll_interval_seconds` | `CLAUDE_USAGE_POLL_INTERVAL` | 120 (minimum 30) |
+| `poll_interval_seconds` | `CLAUDE_USAGE_POLL_INTERVAL` | `120` (minimum 30) |
 | `credentials_path` | `CLAUDE_USAGE_CREDENTIALS` | `~/.claude/.credentials.json` |
 | `login_command` | `CLAUDE_USAGE_LOGIN_COMMAND` | `claude auth login` |
 
-On HTTP 429 the poll interval doubles, up to 15 minutes, and resets on success.
+When rate-limited, it polls less often (up to every 15 minutes) until a request succeeds.
 
-## Caveats
+## 🛠 Troubleshooting
 
-Usage comes from an undocumented endpoint (`/api/oauth/usage`) using the OAuth token
-Claude Code stores in `~/.claude/.credentials.json`. It may change or stop working
-without notice; missing fields are shown as "n/a".
+| Problem | Fix |
+|---|---|
+| No icon | On GNOME, install the AppIndicator extension. Elsewhere, add a system tray or status notifier applet to the panel. |
+| Startup error about typelibs | Install the [dependencies](#from-source-any-distro). |
+| "No terminal found" | Run `claude auth login` yourself, or set `TERMINAL`. |
+| "Offline" | It can't reach the API right now and will keep retrying. |
+| Boxes instead of coloured dots in the menu | Install an emoji font, e.g. `fonts-noto-color-emoji`. |
 
-## Maintainer: publishing
+## ⚠️ Caveats
 
-One-time setup:
+Usage comes from an undocumented endpoint (`/api/oauth/usage`), queried with the
+token Claude Code stores in `~/.claude/.credentials.json`. The app only reads that
+token. The endpoint may change without notice. Missing values show as "n/a".
 
-1. Generate a dedicated signing key and export it:
-   `gpg --quick-generate-key 'claude-usage-linux apt <email>' rsa4096 sign 3y`, then
-   `gpg --armor --export-secret-keys <KEYID>`.
-2. Add the repository secret `APT_GPG_PRIVATE_KEY` (the armored private key) and,
-   if the key has a passphrase, `APT_GPG_PASSPHRASE`. The workflow derives the key
-   ID from the imported key, so no key-ID variable is needed.
-3. Enable Settings > Pages > Source: GitHub Actions.
-4. Allow tag deployments: Settings > Environments > `github-pages` > Deployment
-   branches and tags, and add a rule for tag pattern `v*`. By default only the
-   default branch may deploy, so without it a tag-triggered deploy fails with
-   "Tag vX.Y.Z is not allowed to deploy to github-pages".
+---
 
-To release, bump `debian/changelog` (e.g. `dch -v X.Y.Z`) and `__version__` in
-`src/claude_usage_linux/__init__.py`, commit, then:
-
-```
-git tag vX.Y.Z && git push origin vX.Y.Z
-```
-
-The tag must match the `debian/changelog` version or the workflow fails
-(`tests/test_version.py` checks that the changelog and `__version__` agree).
-
-If a tag was pushed before the bump, delete and re-create it on the fixed commit:
-
-```
-git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z
-git tag vX.Y.Z && git push origin vX.Y.Z
-```
-
-Notes:
-
-- Tag builds fail if `APT_GPG_PRIVATE_KEY` is missing; an unsigned repository is
-  never published. A manual `workflow_dispatch` run without a key builds but does
-  not deploy.
-- Each tag release attaches the versioned .deb, a stable-name
-  `claude-usage-linux_all.deb` and `SHA256SUMS` (only for signed tag builds).
-- Older versions stay available because earlier release .debs are re-downloaded
-  on each run.
-
-## Troubleshooting
-
-- *`apt update` or the key download returns 404 for the apt repository:* the
-  repository only exists after the `apt-repo` workflow has succeeded on a `v*` tag
-  (check the Actions tab; Pages must be enabled with Source: GitHub Actions). Until
-  then use the .deb from the Releases page, or see "Maintainer: publishing".
-- *No icon:* on GNOME install the AppIndicator extension; elsewhere check the panel
-  has a status notifier / system tray applet.
-- *Startup error about typelibs:* install the dependencies above.
-- *"No terminal found":* run `claude auth login` yourself, or set `TERMINAL`.
-- *"Offline":* the API could not be reached; it keeps retrying.
+<div align="center">
+<sub>MIT licensed · Not affiliated with Anthropic · <a href="docs/RELEASING.md">Releasing</a></sub>
+</div>
