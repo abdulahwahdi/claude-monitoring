@@ -5,3 +5,12 @@ build/
 dist/
 .venv/
 venv/
+debian/.debhelper/
+debian/*.debhelper*
+debian/*.substvars
+debian/claude-usage-linux/
+debian/files
+*.deb
+*.buildinfo
+*.changes
+.pybuild/

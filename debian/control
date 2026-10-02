@@ -1,0 +1,19 @@
+Source: claude-usage-linux
+Section: utils
+Priority: optional
+Maintainer: Abdulah Wahdi <abdulah.wahdi@gmail.com>
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools, pybuild-plugin-pyproject
+Rules-Requires-Root: no
+
+Package: claude-usage-linux
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}, python3-gi, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
+Recommends: gnome-shell-extension-appindicator
+Description: panel tray indicator showing Claude usage
+ Shows the Claude 5-hour and weekly usage as a dual-ring icon in the
+ system tray (StatusNotifierItem/AppIndicator), with a menu giving
+ progress bars and reset times for both windows.
+ .
+ Works on KDE, XFCE, Cinnamon, MATE and GNOME with the AppIndicator
+ extension. Starts automatically at login.

@@ -34,7 +34,26 @@ with the extension below. Python 3.9+, standard library only at runtime.
 
 GNOME needs the "AppIndicator and KStatusNotifierItem Support" extension.
 
-## Install
+## Install with apt (Debian/Ubuntu/Mint)
+
+Recommended on Debian-based systems. There is no hosted apt repository yet, so
+build the package from a checkout:
+
+```
+sudo apt install devscripts debhelper dh-python pybuild-plugin-pyproject python3-setuptools
+dpkg-buildpackage -us -uc -b
+sudo apt install ../claude-usage-linux_*_all.deb
+```
+
+apt resolves and installs the GTK and AppIndicator dependencies. The autostart
+entry is installed system-wide to `/etc/xdg/autostart`, so no manual copy is
+needed. To remove it:
+
+```
+sudo apt remove claude-usage-linux
+```
+
+## Install with pip (other distros)
 
 ```
 pip install --user .
@@ -44,6 +63,8 @@ In a virtualenv, create it with `--system-site-packages` so PyGObject is visible
 Then run `claude-usage-linux`.
 
 ### Autostart
+
+The .deb already installs the autostart entry. For a pip install, copy it yourself:
 
 ```
 mkdir -p ~/.config/autostart
