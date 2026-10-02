@@ -55,7 +55,8 @@ Run it as your normal user, not with `sudo`. It asks for your password when it
 needs it. It adds a signed apt repository, so updates arrive with
 `sudo apt upgrade`. You can [read the script](install.sh) first.
 
-Start it with `claude-usage-linux &`. From then on, it starts when you log in.
+The installer starts it right away, and it starts on every login after that.
+You can also launch **Claude Usage** from your applications menu.
 
 <details>
 <summary><b>apt repository, step by step</b></summary>
@@ -103,9 +104,10 @@ Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude
    git clone https://github.com/abdulahwahdi/claude-usage-linux.git
    cd claude-usage-linux
    pip install --user .
-   mkdir -p ~/.config/autostart
+   mkdir -p ~/.config/autostart ~/.local/share/applications
    cp packaging/claude-usage-linux.desktop ~/.config/autostart/
-   claude-usage-linux &
+   cp packaging/claude-usage-linux.desktop ~/.local/share/applications/
+   setsid -f claude-usage-linux
    ```
 
    If pip says `externally-managed-environment`, use
@@ -127,7 +129,7 @@ sudo apt install ../claude-usage-linux_*_all.deb
 | Installed with | Remove with |
 |---|---|
 | installer, apt or .deb | `sudo apt remove claude-usage-linux` |
-| pip | `pip uninstall claude-usage-linux && rm ~/.config/autostart/claude-usage-linux.desktop` |
+| pip | `pip uninstall claude-usage-linux && rm ~/.config/autostart/claude-usage-linux.desktop ~/.local/share/applications/claude-usage-linux.desktop` |
 
 To also remove the apt repository:
 `sudo rm /etc/apt/sources.list.d/claude-usage-linux.list /etc/apt/keyrings/claude-usage-linux.gpg`
@@ -152,6 +154,7 @@ When rate-limited, it polls less often (up to every 15 minutes) until a request 
 | No icon | On GNOME, install the AppIndicator extension. Elsewhere, add a system tray or status notifier applet to the panel. |
 | Startup error about typelibs | Install the [dependencies](#from-source-any-distro). |
 | "No terminal found" | Run `claude auth login` yourself, or set `TERMINAL`. |
+| Icon disappears when the terminal closes | Start it with `setsid -f claude-usage-linux`, or from the applications menu. |
 | "Offline" | It can't reach the API right now and will keep retrying. |
 | Boxes instead of coloured dots in the menu | Install an emoji font, e.g. `fonts-noto-color-emoji`. |
 

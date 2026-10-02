@@ -20,6 +20,17 @@ die() {
     exit 1
 }
 
+# Start the app detached from this terminal so it keeps running after the
+# terminal closes. Later logins start it through the autostart entry.
+start() {
+    [ -z "$root" ] && [ "$(id -u)" -ne 0 ] || return 0
+    [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ] || return 0
+    command -v claude-usage-linux >/dev/null 2>&1 || return 0
+    pgrep -u "$(id -u)" -f 'bin/claude-usage-linux' >/dev/null 2>&1 && return 0
+    setsid -f claude-usage-linux >/dev/null 2>&1 </dev/null &&
+        echo "Started; look for the icon in your panel."
+}
+
 main() {
     # INSTALL_ROOT prefixes the files written, for testing only.
     root=${INSTALL_ROOT:-}
@@ -46,6 +57,7 @@ main() {
         $sudo apt-get update
         $sudo apt-get install -y claude-usage-linux
         echo "Installed from the apt repository; update with: sudo apt update && sudo apt upgrade"
+        start
     else
         echo "apt repository not available; installing the latest release .deb instead" >&2
         cd "$tmp"
@@ -55,6 +67,7 @@ main() {
         chmod 0755 "$tmp"
         $sudo apt-get install -y "$tmp/claude-usage-linux_all.deb"
         echo "Installed from the release .deb; it does not update itself, re-run this installer to update."
+        start
     fi
 }
 
