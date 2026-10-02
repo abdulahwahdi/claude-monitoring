@@ -27,9 +27,16 @@
   the weekly window. The centre shows the 5-hour percentage.
 - **Colour-coded.** Each ring turns amber at 70% and red at 90%.
 - **Reset times.** Click the icon for progress bars and when each window resets.
+- **Usage window.** **Show usage window** opens large animated rings with live
+  reset countdowns. Launching the app again opens the same window instead of a
+  second icon.
+- **One-click update.** **Update now** installs the latest release and restarts
+  the app. The menu shows the installed version.
 - **One-click login.** If you're logged out, the menu shows **Log in…**, which opens
   `claude auth login` in a terminal.
 - **Lightweight.** Python standard library only, no extra packages from pip.
+- **Private.** Your credentials never leave your machine except to Anthropic.
+  See [Privacy](#-privacy).
 
 <div align="center">
 <img src="docs/img/states.svg" alt="Icon states: green under 70%, amber 70 to 89%, red from 90%, grey when there is an error" width="640">
@@ -155,15 +162,33 @@ When rate-limited, it polls less often (up to every 15 minutes) until a request 
 | No icon | On GNOME, install the AppIndicator extension. Elsewhere, add a system tray or status notifier applet to the panel. |
 | Startup error about typelibs | Install the [dependencies](#from-source-any-distro). |
 | "No terminal found" | Run `claude auth login` yourself, or set `TERMINAL`. |
+| Two icons in the panel | Update to 1.1.1 or later; it allows only one running copy. |
 | Icon disappears when the terminal closes | Start it with `setsid -f claude-usage-linux`, or from the applications menu. |
 | "Offline" | It can't reach the API right now and will keep retrying. |
 | Boxes instead of coloured dots in the menu | Install an emoji font, e.g. `fonts-noto-color-emoji`. |
 
+## 🔒 Privacy
+
+**We never save, copy or share your credentials.**
+
+- The app **reads** the token Claude Code already keeps in
+  `~/.claude/.credentials.json`. It never writes to that file or stores the
+  token anywhere else.
+- The token is sent **only to Anthropic** (`api.anthropic.com`, over HTTPS) to
+  ask for your usage. No other server sees it.
+- No analytics, no telemetry, no logging of your token. The only files the app
+  writes are its tray icons (they contain just percentages).
+- **Log in…** runs Claude Code's own `claude auth login`; the app never sees your
+  password.
+- **Update now** downloads the installer from this repository; it sends nothing
+  about you.
+
+All of this is in [`usage.py`](src/claude_usage_linux/usage.py) if you want to check.
+
 ## ⚠️ Caveats
 
-Usage comes from an undocumented endpoint (`/api/oauth/usage`), queried with the
-token Claude Code stores in `~/.claude/.credentials.json`. The app only reads that
-token. The endpoint may change without notice. Missing values show as "n/a".
+Usage comes from an undocumented endpoint (`/api/oauth/usage`). It may change
+without notice. Missing values show as "n/a".
 
 ---
 

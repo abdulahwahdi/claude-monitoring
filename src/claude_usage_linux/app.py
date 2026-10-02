@@ -6,7 +6,7 @@ import sys
 import threading
 from datetime import datetime
 
-from . import icon
+from . import __version__, icon, instance, update
 from .details import DetailsWindow
 from .config import load_config
 from .login import NoTerminal, launch_login
@@ -108,6 +108,17 @@ class TrayApp:
         refresh = Gtk.MenuItem(label="Refresh now")
         refresh.connect("activate", lambda _w: self.refresh())
         self.menu.append(refresh)
+        if update.installed_from_package():
+            update_item = Gtk.MenuItem(label="Update now")
+            update_item.connect("activate", self.on_update)
+        else:
+            update_item = Gtk.MenuItem(label=update.PIP_HINT)
+            update_item.set_sensitive(False)
+        self.menu.append(update_item)
+        self.menu.append(Gtk.SeparatorMenuItem())
+        version = Gtk.MenuItem(label="Version " + __version__)
+        version.set_sensitive(False)
+        self.menu.append(version)
         quit_item = Gtk.MenuItem(label="Quit")
         quit_item.connect("activate", lambda _w: Gtk.main_quit())
         self.menu.append(quit_item)
@@ -119,6 +130,8 @@ class TrayApp:
 
     def start(self):
         self.GLib.unix_signal_add(self.GLib.PRIORITY_DEFAULT, signal.SIGINT, self.Gtk.main_quit)
+        # A second launch sends SIGUSR1 to open the window here instead.
+        self.GLib.unix_signal_add(self.GLib.PRIORITY_DEFAULT, signal.SIGUSR1, self.on_show)
         self.refresh()
         self.schedule()
         self.Gtk.main()
@@ -149,6 +162,22 @@ class TrayApp:
                          on_exit=lambda: self.GLib.idle_add(self.refresh_idle))
         except NoTerminal:
             self.status.set_label(NO_TERMINAL_MSG)
+
+    def on_show(self):
+        self.details.present()
+        return True
+
+    def on_update(self, _widget):
+        try:
+            launch_login(update.UPDATE_COMMAND,
+                         on_exit=lambda: self.GLib.idle_add(self.restart))
+        except NoTerminal:
+            self.status.set_label("No terminal found — run: " + update.UPDATE_COMMAND)
+
+    def restart(self):
+        """Re-exec so a freshly installed version takes over. The lock fd is
+        not inheritable, so the new process can take the lock."""
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def refresh_idle(self):
         self.refresh()
@@ -214,6 +243,13 @@ def _pct(p):
 
 
 def main():
+    lock = instance.acquire(icon.cache_dir())
+    if lock is None:
+        if instance.notify_running(icon.cache_dir()):
+            print("claude-usage-linux is already running; showing its window.")
+        else:
+            print("claude-usage-linux is already running.")
+        return
     TrayApp().start()
 
 
