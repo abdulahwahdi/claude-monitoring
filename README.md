@@ -34,10 +34,24 @@ with the extension below. Python 3.9+, standard library only at runtime.
 
 GNOME needs the "AppIndicator and KStatusNotifierItem Support" extension.
 
-## Install with apt (Debian/Ubuntu/Mint)
+## Install from the apt repository (Debian/Ubuntu/Mint)
 
-Recommended on Debian-based systems. There is no hosted apt repository yet, so
-build the package from a checkout:
+Recommended on Debian-based systems. The repository is signed and hosted on
+GitHub Pages:
+
+```sh
+sudo install -d -m 0755 /etc/apt/keyrings
+sudo curl -fsSL https://abdulahwahdi.github.io/claude-usage-linux/claude-usage-linux.gpg -o /etc/apt/keyrings/claude-usage-linux.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] https://abdulahwahdi.github.io/claude-usage-linux/ ./' | sudo tee /etc/apt/sources.list.d/claude-usage-linux.list
+sudo apt update && sudo apt install claude-usage-linux
+```
+
+Updates arrive through `sudo apt update && sudo apt upgrade`. Installing a
+local .deb (next section) remains available.
+
+## Install a local .deb
+
+Build the package from a checkout instead of using the repository:
 
 ```
 sudo apt install devscripts debhelper dh-python pybuild-plugin-pyproject python3-setuptools
@@ -89,6 +103,38 @@ On HTTP 429 the poll interval doubles, up to 15 minutes, and resets on success.
 Usage comes from an undocumented endpoint (`/api/oauth/usage`) using the OAuth token
 Claude Code stores in `~/.claude/.credentials.json`. It may change or stop working
 without notice; missing fields are shown as "n/a".
+
+## Maintainer: publishing
+
+One-time setup:
+
+1. Generate a dedicated signing key and export it:
+   `gpg --quick-generate-key 'claude-usage-linux apt <email>' rsa4096 sign 3y`, then
+   `gpg --armor --export-secret-keys <KEYID>`.
+2. Add the repository secret `APT_GPG_PRIVATE_KEY` (the armored private key) and,
+   if the key has a passphrase, `APT_GPG_PASSPHRASE`. The workflow derives the key
+   ID from the imported key, so no key-ID variable is needed.
+3. Enable Settings > Pages > Source: GitHub Actions.
+4. Allow tag deployments: Settings > Environments > `github-pages` > Deployment
+   branches and tags, and add a rule for tag pattern `v*`. By default only the
+   default branch may deploy, so without it a tag-triggered deploy fails with
+   "Tag vX.Y.Z is not allowed to deploy to github-pages".
+
+To release, bump `debian/changelog` (e.g. `dch -v X.Y.Z`), commit, then:
+
+```
+git tag vX.Y.Z && git push origin vX.Y.Z
+```
+
+The tag must match the `debian/changelog` version or the workflow fails.
+
+Notes:
+
+- Tag builds fail if `APT_GPG_PRIVATE_KEY` is missing; an unsigned repository is
+  never published. A manual `workflow_dispatch` run without a key builds but does
+  not deploy.
+- Older versions stay available because earlier release .debs are re-downloaded
+  on each run.
 
 ## Troubleshooting
 
