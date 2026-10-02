@@ -133,6 +133,9 @@ class FormatTests(unittest.TestCase):
         self.assertNotIn("▰", l1)
         self.assertEqual(l2, "")
         self.assertEqual(u.format_window_lines("Weekly", u.UsageWindow(10), NOW)[1], "")
+        l1, l2 = u.format_window_lines("5h", w(42), NOW, dot=False)
+        self.assertTrue(l1.startswith("5h"))
+        self.assertEqual(l2, "  resets in 2h 10m")
 
 
 class FetchTests(unittest.TestCase):

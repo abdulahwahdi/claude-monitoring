@@ -170,14 +170,17 @@ DOTS = {"ok": "🟢", "warn": "🟡", "crit": "🔴", "unknown": "⚪"}
 NAME_WIDTH = 6
 
 
-def format_window_lines(name, window, now=None) -> Tuple[str, str]:
+def format_window_lines(name, window, now=None, dot=True) -> Tuple[str, str]:
+    """Menu text for one window. dot=False when the row has a ring icon instead."""
     name = name.ljust(NAME_WIDTH)
     sev = severity(window.percent)
+    prefix = DOTS[sev] + " " if dot else ""
+    indent = "      " if dot else "  "
     if sev == "unknown":
-        return "%s %s  n/a" % (DOTS[sev], name), ""
-    line1 = "%s %s  %s  %d%%" % (
-        DOTS[sev], name, usage_bar(window.percent), int(window.percent + 0.5))
+        return "%s%s  n/a" % (prefix, name), ""
+    line1 = "%s%s  %s  %d%%" % (
+        prefix, name, usage_bar(window.percent), int(window.percent + 0.5))
     line2 = ""
     if window.resets_at is not None:
-        line2 = "      resets in " + format_reset(window.resets_at, now)
+        line2 = indent + "resets in " + format_reset(window.resets_at, now)
     return line1, line2

@@ -7,6 +7,7 @@ import threading
 from datetime import datetime
 
 from . import icon
+from .details import DetailsWindow
 from .config import load_config
 from .login import NoTerminal, launch_login
 from .usage import (AuthError, BadCredentials, NoCredentials, Offline, RateLimited,
@@ -42,6 +43,7 @@ def _import_gi():
     try:
         import gi
         gi.require_version("Gtk", "3.0")
+        gi.require_foreign("cairo")  # the usage window draws with Cairo
         try:
             gi.require_version("AyatanaAppIndicator3", "0.1")
             from gi.repository import AyatanaAppIndicator3 as AppIndicator
@@ -51,7 +53,7 @@ def _import_gi():
         from gi.repository import GLib, Gtk
     except (ImportError, ValueError) as exc:
         print("claude-usage-linux needs PyGObject, GTK 3 and AppIndicator typelibs (%s).\n"
-              "Debian/Ubuntu: sudo apt install python3-gi gir1.2-gtk-3.0 "
+              "Debian/Ubuntu: sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 "
               "gir1.2-ayatanaappindicator3-0.1" % exc, file=sys.stderr)
         sys.exit(1)
     return Gtk, GLib, AppIndicator
@@ -75,10 +77,24 @@ class TrayApp:
         self.indicator.set_icon_theme_path(self.icon_dir)
         self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
 
+        self.details = DetailsWindow(Gtk, self.GLib, self.refresh)
         self.menu = Gtk.Menu()
+        show = Gtk.MenuItem(label="Show usage window")
+        show.connect("activate", lambda _w: self.details.present())
+        self.menu.append(show)
+        self.menu.append(Gtk.SeparatorMenuItem())
+        # Per window: a row with a ring icon, then its reset line.
         self.info = []
-        for _ in range(4):
-            item = Gtk.MenuItem(label="")
+        self.rings = []
+        for i in range(4):
+            if i % 2 == 0:
+                image = Gtk.Image()
+                item = Gtk.ImageMenuItem(label="")
+                item.set_image(image)
+                item.set_always_show_image(True)
+                self.rings.append(image)
+            else:
+                item = Gtk.MenuItem(label="")
             item.set_sensitive(False)
             self.menu.append(item)
             self.info.append(item)
@@ -98,6 +114,8 @@ class TrayApp:
         self.menu.show_all()
         self.login_item.hide()
         self.indicator.set_menu(self.menu)
+        # Middle-click on the icon opens the window where the panel supports it.
+        self.indicator.set_secondary_activate_target(show)
 
     def start(self):
         self.GLib.unix_signal_add(self.GLib.PRIORITY_DEFAULT, signal.SIGINT, self.Gtk.main_quit)
@@ -139,11 +157,13 @@ class TrayApp:
     def set_lines(self, five: UsageWindow, weekly: UsageWindow, placeholder=False):
         now = datetime.now().astimezone()
         lines = []
-        for name, window in (("5h", five), ("Weekly", weekly)):
-            l1, l2 = format_window_lines(name, window, now)
+        for slot, (name, window) in enumerate((("5h", five), ("Weekly", weekly))):
+            l1, l2 = format_window_lines(name, window, now, dot=False)
             if placeholder:
-                l1, l2 = "⚪ %s  —" % name.ljust(6), ""
+                l1, l2 = "%s  —" % name.ljust(6), ""
             lines += [l1, l2]
+            self.rings[slot].set_from_file(
+                icon.render_ring(slot, None if placeholder else window.percent, self.icon_dir))
         for item, text in zip(self.info, lines):
             item.set_label(text)
             if text:
@@ -158,7 +178,9 @@ class TrayApp:
         if exc is None:
             five, weekly = usage.five_hour, usage.weekly
             self.set_lines(five, weekly)
-            self.status.set_label("Updated " + datetime.now().strftime("%H:%M"))
+            updated = "Updated " + datetime.now().strftime("%H:%M")
+            self.status.set_label(updated)
+            self.details.update(five, weekly, None, updated)
             path = icon.render_icon(five.percent, weekly.percent, "ok", self.icon_dir)
             label = "%d%%" % round(five.percent) if five.percent is not None else ""
             tip = "Claude usage — 5h: %s, weekly: %s" % (
@@ -169,6 +191,7 @@ class TrayApp:
         else:
             self.set_lines(UsageWindow(), UsageWindow(), placeholder=True)
             self.status.set_label(error_message(exc))
+            self.details.update(None, None, error_message(exc), "")
             path = icon.render_icon(None, None, "error", self.icon_dir)
             label = ""
             tip = "Claude usage — " + error_message(exc)
