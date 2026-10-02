@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from claude_monitoring.icon import build_svg  # noqa: E402
+from claude_monitoring.icon import build_ring_svg, build_svg  # noqa: E402
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "docs", "img")
 FONT = "font-family=\"-apple-system,'Segoe UI',Ubuntu,Cantarell,'DejaVu Sans',sans-serif\""
@@ -18,15 +18,6 @@ def icon(five, weekly, x, y, size, state="ok"):
     inner = build_svg(five, weekly, state).strip()
     inner = inner.replace('width="24" height="24"', 'x="%s" y="%s" width="%s" height="%s"' % (x, y, size, size), 1)
     return inner.replace(' xmlns="http://www.w3.org/2000/svg"', "", 1)
-
-
-def bar(x, y, pct, color, cells=10):
-    out = []
-    for i in range(cells):
-        filled = i < round(pct / 10)
-        out.append('<rect x="%d" y="%d" width="13" height="8" rx="2" fill="%s"%s/>'
-                   % (x + i * 16, y, color if filled else "#8b949e", "" if filled else ' fill-opacity="0.25"'))
-    return "".join(out)
 
 
 def hero():
@@ -59,14 +50,16 @@ def hero():
     # Dropdown menu
     mx, my, mw = 440, 52, 300
     p.append('<g filter="url(#sh)"><rect x="%d" y="%d" width="%d" height="226" rx="12" fill="#1f2937" stroke="#374151"/></g>' % (mx, my, mw))
-    rows = [("5h", 42, "resets in 2h 10m", "#3fb950"), ("Weekly", 17, "resets in 3d 4h", "#3fb950")]
+    rows = [("5-hour   42%  ·  On track", 42, "Resets in 2h 10m  ·  today 16:42"),
+            ("Weekly   17%  ·  On track", 17, "Resets in 3d 4h  ·  Mon 09:00")]
     y = my + 30
-    for label, pct, reset, color in rows:
-        p.append('<circle cx="%d" cy="%d" r="6" fill="%s"/>' % (mx + 22, y - 4, color))
-        p.append('<text x="%d" y="%d" %s font-size="14" font-weight="600" fill="#e5e7eb">%s</text>' % (mx + 36, y, FONT, label))
-        p.append(bar(mx + 104, y - 11, pct, color))
-        p.append('<text x="%d" y="%d" %s font-size="14" fill="#e5e7eb" text-anchor="end">%d%%</text>' % (mx + mw - 18, y, MONO, pct))
-        p.append('<text x="%d" y="%d" %s font-size="12.5" fill="#9ca3af">%s</text>' % (mx + 36, y + 22, FONT, reset))
+    for label, pct, reset in rows:
+        p.append('<text x="%d" y="%d" %s font-size="14" fill="#e5e7eb">%s</text>' % (mx + 20, y, FONT, label))
+        ring = build_ring_svg(pct).strip().replace(
+            ' xmlns="http://www.w3.org/2000/svg" width="24" height="24"',
+            ' x="%d" y="%d" width="18" height="18"' % (mx + mw - 36, y - 14), 1)
+        p.append(ring)
+        p.append('<text x="%d" y="%d" %s font-size="12.5" fill="#9ca3af">%s</text>' % (mx + 20, y + 24, FONT, reset))
         y += 58
     p.append('<line x1="%d" y1="%d" x2="%d" y2="%d" stroke="#374151"/>' % (mx + 12, y - 12, mx + mw - 12, y - 12))
     for item in ("Refresh now", "Quit"):
