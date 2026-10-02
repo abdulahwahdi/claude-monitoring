@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-usage-linux"
+dynamic = ["version"]
+description = "Linux panel tray indicator showing Claude 5-hour and weekly usage"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+claude-usage-linux = "claude_usage_linux.app:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "claude_usage_linux.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
