@@ -141,13 +141,22 @@ One-time setup:
    default branch may deploy, so without it a tag-triggered deploy fails with
    "Tag vX.Y.Z is not allowed to deploy to github-pages".
 
-To release, bump `debian/changelog` (e.g. `dch -v X.Y.Z`), commit, then:
+To release, bump `debian/changelog` (e.g. `dch -v X.Y.Z`) and `__version__` in
+`src/claude_usage_linux/__init__.py`, commit, then:
 
 ```
 git tag vX.Y.Z && git push origin vX.Y.Z
 ```
 
-The tag must match the `debian/changelog` version or the workflow fails.
+The tag must match the `debian/changelog` version or the workflow fails
+(`tests/test_version.py` checks that the changelog and `__version__` agree).
+
+If a tag was pushed before the bump, delete and re-create it on the fixed commit:
+
+```
+git tag -d vX.Y.Z && git push origin :refs/tags/vX.Y.Z
+git tag vX.Y.Z && git push origin vX.Y.Z
+```
 
 Notes:
 
