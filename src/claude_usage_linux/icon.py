@@ -61,6 +61,30 @@ def build_svg(five_pct, weekly_pct, state="ok") -> str:
     )
 
 
+def build_ring_svg(percent) -> str:
+    """One thick ring for a menu row, coloured by severity."""
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" '
+        'viewBox="0 0 24 24">%s</svg>\n'
+        % _ring(8.5, 4.5, percent, COLORS.get(severity(percent), GREY))
+    )
+
+
+def render_ring(slot, percent, directory=None) -> str:
+    """Write the ring for menu row `slot` and drop that slot's older files."""
+    directory = directory or cache_dir()
+    path = os.path.join(directory, "ring-%s-%s.svg" % (slot, _tag(percent)))
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(build_ring_svg(percent))
+    for old in glob.glob(os.path.join(directory, "ring-%s-*.svg" % slot)):
+        if old != path:
+            try:
+                os.remove(old)
+            except OSError:
+                pass
+    return path
+
+
 def _tag(pct):
     return "na" if pct is None else str(int(round(pct)))
 
