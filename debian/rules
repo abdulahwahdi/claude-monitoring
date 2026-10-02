@@ -1,0 +1,5 @@
+#!/usr/bin/make -f
+export PYBUILD_NAME=claude-usage-linux
+
+%:
+	dh $@ --buildsystem=pybuild
