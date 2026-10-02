@@ -115,7 +115,7 @@ Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude
 <summary><b>Build your own .deb</b></summary>
 
 ```sh
-sudo apt install devscripts debhelper dh-python pybuild-plugin-pyproject python3-setuptools
+sudo apt install build-essential devscripts debhelper dh-python pybuild-plugin-pyproject python3-setuptools
 dpkg-buildpackage -us -uc -b
 sudo apt install ../claude-usage-linux_*_all.deb
 ```
