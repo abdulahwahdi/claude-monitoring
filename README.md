@@ -34,10 +34,21 @@ with the extension below. Python 3.9+, standard library only at runtime.
 
 GNOME needs the "AppIndicator and KStatusNotifierItem Support" extension.
 
+## Quick install (Debian/Ubuntu/Mint)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-usage-linux/main/install.sh | sh
+```
+
+The [installer](install.sh) adds the signed apt repository below and installs
+the package (it asks for your sudo password). If the repository is not
+published yet, it installs the latest release .deb instead, after checking it
+against `SHA256SUMS`. To read it first, download it and run `sh install.sh`.
+
 ## Install from the apt repository (Debian/Ubuntu/Mint)
 
-Recommended on Debian-based systems. The repository is signed and hosted on
-GitHub Pages:
+The same steps the installer performs, done by hand. The repository is signed
+and hosted on GitHub Pages:
 
 ```sh
 sudo install -d -m 0755 /etc/apt/keyrings
