@@ -46,10 +46,31 @@ echo 'deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] https://abdulahwa
 sudo apt update && sudo apt install claude-usage-linux
 ```
 
-Updates arrive through `sudo apt update && sudo apt upgrade`. Installing a
-local .deb (next section) remains available.
+Updates arrive through `sudo apt update && sudo apt upgrade`. Downloading the
+.deb directly or building it from source (next sections) remains available.
 
-## Install a local .deb
+## Download the .deb (no build)
+
+Download the latest release asset, verify it and install it with apt (which
+resolves the dependencies):
+
+```sh
+curl -fsSLO https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/claude-usage-linux_all.deb
+curl -fsSLO https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/SHA256SUMS
+sha256sum -c --ignore-missing SHA256SUMS
+sudo apt install ./claude-usage-linux_all.deb
+```
+
+Specific versions are on the
+[Releases page](https://github.com/abdulahwahdi/claude-usage-linux/releases) as
+`claude-usage-linux_<version>_all.deb`. A manually installed .deb does not
+update itself; use the apt repository above for updates. To remove it:
+
+```sh
+sudo apt remove claude-usage-linux
+```
+
+## Build and install the .deb from source
 
 Build the package from a checkout instead of using the repository:
 
@@ -133,6 +154,8 @@ Notes:
 - Tag builds fail if `APT_GPG_PRIVATE_KEY` is missing; an unsigned repository is
   never published. A manual `workflow_dispatch` run without a key builds but does
   not deploy.
+- Each tag release attaches the versioned .deb, a stable-name
+  `claude-usage-linux_all.deb` and `SHA256SUMS` (only for signed tag builds).
 - Older versions stay available because earlier release .debs are re-downloaded
   on each run.
 
