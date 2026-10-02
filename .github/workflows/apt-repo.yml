@@ -84,6 +84,17 @@ jobs:
           dpkg-buildpackage -us -uc -b
           mkdir -p debs
 
+      - name: Check package layout
+        run: |
+          # Modules must be in the version-independent path, or the package
+          # only works on the runner's Python version.
+          contents=$(dpkg-deb -c ../claude-usage-linux_*_all.deb)
+          echo "$contents" | grep -q '/usr/lib/python3/dist-packages/claude_usage_linux/app.py'
+          if echo "$contents" | grep -q '/usr/lib/python3\.[0-9]*/'; then
+            echo "::error::modules installed into a version-specific python3.X directory"
+            exit 1
+          fi
+
       - name: Fetch previous releases
         env:
           GH_TOKEN: ${{ github.token }}

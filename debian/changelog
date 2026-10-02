@@ -1,3 +1,13 @@
+claude-usage-linux (1.1.1) unstable; urgency=medium
+
+  * Install modules into /usr/lib/python3/dist-packages so the package works
+    on every Python 3 version, not only the one it was built with.
+  * Only one copy runs; launching it again opens the usage window.
+  * "Update now" menu item and installed version in the menu.
+  * README: privacy section.
+
+ -- Abdulah Wahdi <abdulah.wahdi@gmail.com>  Fri, 02 Oct 2026 13:43:11 +0700
+
 claude-usage-linux (1.1.0) unstable; urgency=medium
 
   * Animated usage window with large 5-hour and weekly rings.
