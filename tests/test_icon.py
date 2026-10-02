@@ -58,3 +58,18 @@ class IconTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RingTests(unittest.TestCase):
+    def test_ring_colour_follows_severity(self):
+        self.assertIn(icon.COLORS["ok"], icon.build_ring_svg(42))
+        self.assertIn(icon.COLORS["crit"], icon.build_ring_svg(95))
+        ET.fromstring(icon.build_ring_svg(None))
+
+    def test_render_ring_keeps_one_file_per_slot(self):
+        with tempfile.TemporaryDirectory() as d:
+            icon.render_ring(0, 10, d)
+            icon.render_ring(1, 20, d)
+            path = icon.render_ring(0, 30, d)
+            self.assertEqual(sorted(os.listdir(d)), ["ring-0-30.svg", "ring-1-20.svg"])
+            self.assertTrue(path.endswith("ring-0-30.svg"))
