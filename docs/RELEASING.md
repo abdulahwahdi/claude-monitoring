@@ -40,3 +40,10 @@ Notes:
   `claude-usage-linux_all.deb` and `SHA256SUMS` (only for signed tag builds).
 - Older versions stay available because earlier release .debs are re-downloaded
   on each run.
+
+## Images
+
+`scripts/render-readme-images.py` regenerates the README images, the app logo
+(`packaging/claude-usage-linux.svg`) and `docs/img/social-preview.svg` from the
+tray icon code. After changing the social preview, re-export it to PNG at
+1280x640 and upload it under Settings > General > Social preview.
