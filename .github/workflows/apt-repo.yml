@@ -90,7 +90,8 @@ jobs:
         run: |
           latest=$(gh release list --limit 1 --json tagName -q '.[].tagName')
           if [ -n "$latest" ]; then
-            gh release download --pattern '*.deb' --dir debs --clobber
+            gh release download --pattern 'claude-usage-linux_*_all.deb' --dir debs --clobber
+            rm -f debs/claude-usage-linux_all.deb
           fi
           cp ../claude-usage-linux_*.deb debs/
 
@@ -138,11 +139,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          deb="debs/claude-usage-linux_${GITHUB_REF_NAME#v}_all.deb"
+          deb="claude-usage-linux_${GITHUB_REF_NAME#v}_all.deb"
+          mkdir -p release-assets
+          cp "debs/$deb" "release-assets/$deb"
+          cp "debs/$deb" release-assets/claude-usage-linux_all.deb
+          (cd release-assets && sha256sum claude-usage-linux_*_all.deb claude-usage-linux_all.deb > SHA256SUMS && sha256sum -c SHA256SUMS)
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "$deb" --clobber
+            gh release upload "$GITHUB_REF_NAME" release-assets/* --clobber
           else
-            gh release create "$GITHUB_REF_NAME" "$deb" --generate-notes
+            gh release create "$GITHUB_REF_NAME" release-assets/* --generate-notes
           fi
 
   deploy:
