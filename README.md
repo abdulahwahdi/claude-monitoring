@@ -94,9 +94,9 @@ Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude
 
    | Distro | Command |
    |---|---|
-   | Debian/Ubuntu/Mint | `sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1` |
+   | Debian/Ubuntu/Mint | `sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1` |
    | Fedora | `sudo dnf install python3-gobject libayatana-appindicator-gtk3` |
-   | Arch | `sudo pacman -S python-gobject libayatana-appindicator` |
+   | Arch | `sudo pacman -S python-gobject python-cairo libayatana-appindicator` |
 
 2. Install, enable autostart and start it:
 
