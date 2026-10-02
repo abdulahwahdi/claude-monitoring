@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the README images in docs/img from the real tray icon."""
+"""Render the README images, app logo and social preview from the real tray icon."""
 
 import os
 import sys
@@ -93,8 +93,43 @@ def states():
     return "".join(p)
 
 
+def logo():
+    """App logo: the two rings on a dark rounded tile, readable on light and dark menus."""
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">'
+        '<defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="1">'
+        '<stop offset="0" stop-color="#2b3647"/><stop offset="1" stop-color="#0d1421"/></linearGradient></defs>'
+        '<rect x="4" y="4" width="120" height="120" rx="28" fill="url(#t)"/>'
+        '<circle cx="64" cy="64" r="40" fill="none" stroke="#8b949e" stroke-opacity="0.25" stroke-width="12"/>'
+        '<circle cx="64" cy="64" r="40" fill="none" stroke="#3fb950" stroke-width="12" stroke-linecap="round" '
+        'pathLength="100" stroke-dasharray="68 100" transform="rotate(-90 64 64)"/>'
+        '<circle cx="64" cy="64" r="22" fill="none" stroke="#8b949e" stroke-opacity="0.25" stroke-width="10"/>'
+        '<circle cx="64" cy="64" r="22" fill="none" stroke="#d29922" stroke-width="10" stroke-linecap="round" '
+        'pathLength="100" stroke-dasharray="40 100" transform="rotate(-90 64 64)"/>'
+        "</svg>\n"
+    )
+
+
+def social():
+    """1280x640 GitHub social preview: logo, name and tagline."""
+    mark = logo().strip().replace(' xmlns="http://www.w3.org/2000/svg" width="128" height="128"',
+                                  ' x="120" y="200" width="240" height="240"', 1)
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">'
+        '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">'
+        '<stop offset="0" stop-color="#1f2937"/><stop offset="1" stop-color="#0b1220"/></linearGradient></defs>'
+        '<rect width="1280" height="640" fill="url(#bg)"/>' + mark +
+        '<text x="420" y="300" %s font-size="72" font-weight="700" fill="#f9fafb">claude-usage-linux</text>' % FONT +
+        '<text x="420" y="370" %s font-size="34" fill="#9ca3af">Your Claude limits, in the Linux panel.</text>' % FONT +
+        '<text x="420" y="440" %s font-size="26" fill="#6b7280">KDE · GNOME · XFCE · Cinnamon · MATE</text>' % FONT +
+        "</svg>\n"
+    )
+
+
 if __name__ == "__main__":
+    with open(os.path.join(os.path.dirname(__file__), "..", "packaging", "claude-usage-linux.svg"), "w") as f:
+        f.write(logo())
     os.makedirs(OUT, exist_ok=True)
-    for name, svg in (("hero.svg", hero()), ("states.svg", states())):
+    for name, svg in (("hero.svg", hero()), ("states.svg", states()), ("social-preview.svg", social())):
         with open(os.path.join(OUT, name), "w") as f:
             f.write(svg)
