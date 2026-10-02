@@ -45,6 +45,15 @@ migrate() {
     pkill -u "$(id -u)" -f 'bin/claude-usage-linux' >/dev/null 2>&1 || true
 }
 
+# Removing the old package keeps its /etc files, including an autostart entry
+# for a command that no longer exists. Purging deletes them.
+purge_old() {
+    [ -z "$root" ] || return 0
+    if dpkg-query -W -f='${Status}' claude-usage-linux 2>/dev/null | grep -q config-files; then
+        $sudo dpkg --purge claude-usage-linux >/dev/null
+    fi
+}
+
 main() {
     # INSTALL_ROOT prefixes the files written, for testing only.
     root=${INSTALL_ROOT:-}
@@ -73,6 +82,7 @@ main() {
         $sudo apt-get update
         $sudo apt-get install -y claude-monitoring
         echo "Installed from the apt repository; update with: sudo apt update && sudo apt upgrade"
+        purge_old
         start
     else
         echo "apt repository not available; installing the latest release .deb instead" >&2
@@ -83,6 +93,7 @@ main() {
         chmod 0755 "$tmp"
         $sudo apt-get install -y "$tmp/claude-monitoring_all.deb"
         echo "Installed from the release .deb; it does not update itself, re-run this installer to update."
+        purge_old
         start
     fi
 }
