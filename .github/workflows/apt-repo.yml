@@ -1,0 +1,160 @@
+# Builds the .deb, assembles a signed flat apt repository and publishes it to
+# GitHub Pages on v* tags.
+#
+# NOTE: the `github-pages` environment must allow deployments from `v*` tags
+# (Settings > Environments > github-pages > deployment branches and tags), see
+# the Maintainer section of the README. Otherwise the deploy job is rejected.
+name: apt-repo
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apt-repo
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      signed: ${{ steps.key.outputs.signed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debhelper dh-python python3-all python3-setuptools pybuild-plugin-pyproject dpkg-dev apt-utils gnupg devscripts
+
+      - name: Unit tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests
+
+      - name: Check tag matches changelog version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          changelog_version=$(dpkg-parsechangelog -S Version)
+          if [ "${GITHUB_REF_NAME#v}" != "$changelog_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match debian/changelog version $changelog_version"
+            exit 1
+          fi
+
+      - name: Import signing key
+        id: key
+        shell: bash
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          set -eu
+          if [ -z "$APT_GPG_PRIVATE_KEY" ]; then
+            if [ "${GITHUB_REF#refs/tags/v}" != "$GITHUB_REF" ]; then
+              echo "::error::APT_GPG_PRIVATE_KEY secret is required for release builds"
+              exit 1
+            fi
+            echo "::warning::APT_GPG_PRIVATE_KEY is not set; building an unsigned repository that will not be deployed"
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          umask 077
+          keyfile="$RUNNER_TEMP/key.asc"
+          ppfile="$RUNNER_TEMP/pp"
+          printf %s "$APT_GPG_PRIVATE_KEY" > "$keyfile"
+          printf %s "$APT_GPG_PASSPHRASE" > "$ppfile"
+          gpg --batch --pinentry-mode loopback --passphrase-file "$ppfile" --import "$keyfile"
+          shred -u "$keyfile" "$ppfile" || rm -f "$keyfile" "$ppfile"
+          KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr/{print $10; exit}')
+          if [ -z "$KEY_ID" ]; then
+            echo "::error::No secret key found after import"
+            exit 1
+          fi
+          echo "APT_GPG_KEY_ID=$KEY_ID" >> "$GITHUB_ENV"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build package
+        run: |
+          dpkg-buildpackage -us -uc -b
+          mkdir -p debs
+
+      - name: Fetch previous releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest=$(gh release list --limit 1 --json tagName -q '.[].tagName')
+          if [ -n "$latest" ]; then
+            gh release download --pattern '*.deb' --dir debs --clobber
+          fi
+          cp ../claude-usage-linux_*.deb debs/
+
+      - name: Build apt repository
+        env:
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          mkdir -p apt-repo
+          cat > apt-repo/index.html <<'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <title>claude-usage-linux apt repository</title>
+          </head>
+          <body>
+          <h1>claude-usage-linux apt repository</h1>
+          <pre>
+          sudo install -d -m 0755 /etc/apt/keyrings
+          sudo curl -fsSL https://abdulahwahdi.github.io/claude-usage-linux/claude-usage-linux.gpg -o /etc/apt/keyrings/claude-usage-linux.gpg
+          echo 'deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] https://abdulahwahdi.github.io/claude-usage-linux/ ./' | sudo tee /etc/apt/sources.list.d/claude-usage-linux.list
+          sudo apt update &amp;&amp; sudo apt install claude-usage-linux
+          </pre>
+          <p><a href="https://github.com/abdulahwahdi/claude-usage-linux">Source on GitHub</a></p>
+          </body>
+          </html>
+          HTML
+          scripts/build-apt-repo.sh debs apt-repo
+
+      - name: Upload Pages artifact
+        if: steps.key.outputs.signed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apt-repo
+
+      - name: Upload unsigned repository for inspection
+        if: steps.key.outputs.signed != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: apt-repo-unsigned
+          path: apt-repo
+
+      - name: Publish release
+        if: steps.key.outputs.signed == 'true' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          deb="debs/claude-usage-linux_${GITHUB_REF_NAME#v}_all.deb"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$deb" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$deb" --generate-notes
+          fi
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.signed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
