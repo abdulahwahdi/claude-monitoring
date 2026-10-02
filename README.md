@@ -26,7 +26,7 @@
 - **Two rings, one glance.** The outer ring is the 5-hour window, the inner ring is
   the weekly window. The centre shows the 5-hour percentage.
 - **Colour-coded.** Each ring turns amber at 70% and red at 90%.
-- **Reset times.** Click the icon for progress bars and when each window resets.
+- **Reset times.** Click the icon to see each window's usage, status and when it resets.
 - **Usage window.** **Show usage window** opens large animated rings with live
   reset countdowns. Launching the app again opens the same window instead of a
   second icon.

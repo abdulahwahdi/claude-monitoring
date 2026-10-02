@@ -7,11 +7,10 @@ import math
 from datetime import datetime
 
 from .icon import COLORS, GREY
-from .usage import format_reset, severity
+from .usage import STATUS, format_reset, reset_at, severity
 
 WIDTH, HEIGHT = 480, 270
 ANIMATION_SECONDS = 0.9
-STATUS = {"ok": "On track", "warn": "Running high", "crit": "Almost out", "unknown": "No data"}
 
 
 def _rgb(hex_color):
@@ -22,14 +21,6 @@ def _rgb(hex_color):
 def ease_out(t):
     t = max(0.0, min(1.0, t))
     return 1 - (1 - t) ** 3
-
-
-def reset_at(resets_at, now):
-    """'today 16:42' or 'Mon 09:00' in local time."""
-    local = resets_at.astimezone()
-    if local.date() == now.astimezone().date():
-        return local.strftime("today %H:%M")
-    return local.strftime("%a %H:%M")
 
 
 def _rounded_rect(cr, x, y, w, h, r):

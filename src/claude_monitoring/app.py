@@ -11,7 +11,7 @@ from .details import DetailsWindow
 from .config import load_config
 from .login import NoTerminal, launch_login
 from .usage import (AuthError, BadCredentials, NoCredentials, Offline, RateLimited,
-                    TokenExpired, Usage, UsageWindow, fetch_usage, format_window_lines,
+                    TokenExpired, Usage, UsageWindow, fetch_usage, menu_lines,
                     load_token, needs_login, parse_usage)
 
 MAX_BACKOFF = 15 * 60
@@ -186,10 +186,10 @@ class TrayApp:
     def set_lines(self, five: UsageWindow, weekly: UsageWindow, placeholder=False):
         now = datetime.now().astimezone()
         lines = []
-        for slot, (name, window) in enumerate((("5h", five), ("Weekly", weekly))):
-            l1, l2 = format_window_lines(name, window, now, dot=False)
+        for slot, (name, window) in enumerate((("5-hour", five), ("Weekly", weekly))):
+            l1, l2 = menu_lines(name, window, now)
             if placeholder:
-                l1, l2 = "%s  —" % name.ljust(6), ""
+                l1, l2 = "%s   —" % name, ""
             lines += [l1, l2]
             self.rings[slot].set_from_file(
                 icon.render_ring(slot, None if placeholder else window.percent, self.icon_dir))

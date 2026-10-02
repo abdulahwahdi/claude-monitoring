@@ -110,32 +110,15 @@ class FormatTests(unittest.TestCase):
         self.assertEqual(u.severity(90), "crit")
         self.assertEqual(u.severity(None), "unknown")
 
-    def test_bar(self):
-        self.assertEqual(u.usage_bar(0), "▱" * 10)
-        self.assertEqual(u.usage_bar(42), "▰" * 4 + "▱" * 6)
-        self.assertEqual(u.usage_bar(100), "▰" * 10)
-        self.assertEqual(u.usage_bar(None), "▱" * 10)
-        self.assertEqual(u.usage_bar(150), "▰" * 10)
-        self.assertEqual(u.usage_bar(-5), "▱" * 10)
-        self.assertEqual(len(u.usage_bar(50, 20)), 20)
-
-    def test_lines(self):
+    def test_menu_lines(self):
         w = lambda p: u.UsageWindow(p, NOW + timedelta(hours=2, minutes=10))
-        l1, l2 = u.format_window_lines("5h", w(42), NOW)
-        self.assertTrue(l1.startswith("🟢 5h"))
-        self.assertIn("42%", l1)
-        self.assertEqual(l2, "      resets in 2h 10m")
-        self.assertTrue(u.format_window_lines("5h", w(75), NOW)[0].startswith("🟡"))
-        self.assertTrue(u.format_window_lines("5h", w(95), NOW)[0].startswith("🔴"))
-        l1, l2 = u.format_window_lines("5h", u.UsageWindow(), NOW)
-        self.assertTrue(l1.startswith("⚪ 5h"))
-        self.assertTrue(l1.endswith("n/a"))
-        self.assertNotIn("▰", l1)
-        self.assertEqual(l2, "")
-        self.assertEqual(u.format_window_lines("Weekly", u.UsageWindow(10), NOW)[1], "")
-        l1, l2 = u.format_window_lines("5h", w(42), NOW, dot=False)
-        self.assertTrue(l1.startswith("5h"))
-        self.assertEqual(l2, "  resets in 2h 10m")
+        l1, l2 = u.menu_lines("5-hour", w(42), NOW)
+        self.assertEqual(l1, "5-hour   42%  ·  On track")
+        self.assertTrue(l2.startswith("Resets in 2h 10m  ·  "))
+        self.assertIn("Running high", u.menu_lines("5-hour", w(75), NOW)[0])
+        self.assertIn("Almost out", u.menu_lines("5-hour", w(95), NOW)[0])
+        self.assertEqual(u.menu_lines("Weekly", u.UsageWindow(), NOW), ("Weekly   n/a", ""))
+        self.assertEqual(u.menu_lines("Weekly", u.UsageWindow(10), NOW)[1], "")
 
 
 class FetchTests(unittest.TestCase):

@@ -157,30 +157,26 @@ def severity(percent) -> str:
     return "ok"
 
 
-def usage_bar(percent, width=10) -> str:
-    if percent is None:
-        filled = 0
-    else:
-        filled = int(percent * width / 100 + 0.5)
-        filled = max(0, min(width, filled))
-    return "▰" * filled + "▱" * (width - filled)
+STATUS = {"ok": "On track", "warn": "Running high", "crit": "Almost out", "unknown": "No data"}
 
 
-DOTS = {"ok": "🟢", "warn": "🟡", "crit": "🔴", "unknown": "⚪"}
-NAME_WIDTH = 6
+def reset_at(resets_at, now) -> str:
+    """'today 16:42' or 'Mon 09:00' in local time."""
+    local = resets_at.astimezone()
+    if local.date() == now.astimezone().date():
+        return local.strftime("today %H:%M")
+    return local.strftime("%a %H:%M")
 
 
-def format_window_lines(name, window, now=None, dot=True) -> Tuple[str, str]:
-    """Menu text for one window. dot=False when the row has a ring icon instead."""
-    name = name.ljust(NAME_WIDTH)
+def menu_lines(title, window, now=None) -> Tuple[str, str]:
+    """Two menu rows for one window, worded like the usage window."""
+    now = now or datetime.now(timezone.utc)
     sev = severity(window.percent)
-    prefix = DOTS[sev] + " " if dot else ""
-    indent = "      " if dot else "  "
     if sev == "unknown":
-        return "%s%s  n/a" % (prefix, name), ""
-    line1 = "%s%s  %s  %d%%" % (
-        prefix, name, usage_bar(window.percent), int(window.percent + 0.5))
+        return "%s   n/a" % title, ""
+    line1 = "%s   %d%%  ·  %s" % (title, int(window.percent + 0.5), STATUS[sev])
     line2 = ""
     if window.resets_at is not None:
-        line2 = indent + "resets in " + format_reset(window.resets_at, now)
+        line2 = "Resets in %s  ·  %s" % (format_reset(window.resets_at, now),
+                                         reset_at(window.resets_at, now))
     return line1, line2
