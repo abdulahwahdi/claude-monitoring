@@ -10,7 +10,7 @@ from typing import Optional, Tuple
 
 USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 DEFAULT_CREDENTIALS = "~/.claude/.credentials.json"
-USER_AGENT = "claude-usage-linux"
+USER_AGENT = "claude-monitoring"
 TIMEOUT = 10
 
 

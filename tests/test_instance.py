@@ -3,7 +3,7 @@ import signal
 import tempfile
 import unittest
 
-from claude_usage_linux import instance, update
+from claude_monitoring import instance, update
 
 
 class InstanceTests(unittest.TestCase):
@@ -45,9 +45,9 @@ class InstanceTests(unittest.TestCase):
 class UpdateTests(unittest.TestCase):
     def test_installed_from_package(self):
         self.assertTrue(update.installed_from_package(
-            "/usr/lib/python3/dist-packages/claude_usage_linux/update.py"))
+            "/usr/lib/python3/dist-packages/claude_monitoring/update.py"))
         self.assertFalse(update.installed_from_package(
-            os.path.expanduser("~/.local/lib/python3.12/site-packages/claude_usage_linux/update.py")))
+            os.path.expanduser("~/.local/lib/python3.12/site-packages/claude_monitoring/update.py")))
 
     def test_update_command_uses_installer(self):
         self.assertIn("install.sh", update.UPDATE_COMMAND)

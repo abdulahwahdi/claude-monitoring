@@ -1,14 +1,14 @@
 <div align="center">
 
-<img src="docs/img/hero.svg" alt="claude-usage-linux in a Linux top panel, with its menu open" width="820">
+<img src="docs/img/hero.svg" alt="claude-monitoring in a Linux top panel, with its menu open" width="820">
 
-<h1>claude-usage-linux</h1>
+<h1>claude-monitoring</h1>
 
 <p><b>See your Claude usage limits in the Linux panel, next to wifi, sound and battery.</b></p>
 
 <p>
-<a href="https://github.com/abdulahwahdi/claude-usage-linux/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/abdulahwahdi/claude-usage-linux?style=flat-square&color=3fb950"></a>
-<a href="https://github.com/abdulahwahdi/claude-usage-linux/actions/workflows/test.yml"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/abdulahwahdi/claude-usage-linux/test.yml?branch=main&style=flat-square&label=tests"></a>
+<a href="https://github.com/abdulahwahdi/claude-monitoring/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/abdulahwahdi/claude-monitoring?style=flat-square&color=3fb950"></a>
+<a href="https://github.com/abdulahwahdi/claude-monitoring/actions/workflows/test.yml"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/abdulahwahdi/claude-monitoring/test.yml?branch=main&style=flat-square&label=tests"></a>
 <img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-3776ab?style=flat-square">
 <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-8b949e?style=flat-square"></a>
 </p>
@@ -55,7 +55,7 @@ Cinnamon, MATE, and GNOME with the
 ### One-line installer (Debian/Ubuntu/Mint)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-usage-linux/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-monitoring/main/install.sh | sh
 ```
 
 Run it as your normal user, not with `sudo`. It asks for your password when it
@@ -63,7 +63,12 @@ needs it. It adds a signed apt repository, so updates arrive with
 `sudo apt upgrade`. You can [read the script](install.sh) first.
 
 The installer starts it right away, and it starts on every login after that.
-You can also launch **Claude Usage** from your applications menu.
+You can also launch **Claude Monitoring** from your applications menu.
+
+> [!NOTE]
+> **Upgrading from `claude-usage-linux`?** The project was renamed in 2.0.0. Run the
+> one-line installer above; it removes the old package and apt source for you and
+> keeps your settings.
 
 <details>
 <summary><b>apt repository, step by step</b></summary>
@@ -72,9 +77,9 @@ This does the same thing as the installer:
 
 ```sh
 sudo install -d -m 0755 /etc/apt/keyrings
-sudo curl -fsSL https://abdulahwahdi.github.io/claude-usage-linux/claude-usage-linux.gpg -o /etc/apt/keyrings/claude-usage-linux.gpg
-echo 'deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] https://abdulahwahdi.github.io/claude-usage-linux/ ./' | sudo tee /etc/apt/sources.list.d/claude-usage-linux.list
-sudo apt update && sudo apt install claude-usage-linux
+sudo curl -fsSL https://abdulahwahdi.github.io/claude-monitoring/claude-monitoring.gpg -o /etc/apt/keyrings/claude-monitoring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/claude-monitoring.gpg] https://abdulahwahdi.github.io/claude-monitoring/ ./' | sudo tee /etc/apt/sources.list.d/claude-monitoring.list
+sudo apt update && sudo apt install claude-monitoring
 ```
 
 </details>
@@ -84,14 +89,14 @@ sudo apt update && sudo apt install claude-usage-linux
 
 ```sh
 cd "$(mktemp -d)"
-curl -fsSLO https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/claude-usage-linux_all.deb
-curl -fsSLO https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/SHA256SUMS
+curl -fsSLO https://github.com/abdulahwahdi/claude-monitoring/releases/latest/download/claude-monitoring_all.deb
+curl -fsSLO https://github.com/abdulahwahdi/claude-monitoring/releases/latest/download/SHA256SUMS
 sha256sum -c --ignore-missing SHA256SUMS
-sudo apt install ./claude-usage-linux_all.deb
+sudo apt install ./claude-monitoring_all.deb
 ```
 
 Keep the `./`. Without it, apt looks in its repositories instead of the file.
-Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude-usage-linux/releases).
+Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude-monitoring/releases).
 
 </details>
 
@@ -108,14 +113,14 @@ Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude
 2. Install, enable autostart and start it:
 
    ```sh
-   git clone https://github.com/abdulahwahdi/claude-usage-linux.git
-   cd claude-usage-linux
+   git clone https://github.com/abdulahwahdi/claude-monitoring.git
+   cd claude-monitoring
    pip install --user .
    mkdir -p ~/.config/autostart ~/.local/share/applications ~/.local/share/icons/hicolor/scalable/apps
-   cp packaging/claude-usage-linux.desktop ~/.config/autostart/
-   cp packaging/claude-usage-linux.desktop ~/.local/share/applications/
-   cp packaging/claude-usage-linux.svg ~/.local/share/icons/hicolor/scalable/apps/
-   setsid -f claude-usage-linux
+   cp packaging/claude-monitoring.desktop ~/.config/autostart/
+   cp packaging/claude-monitoring.desktop ~/.local/share/applications/
+   cp packaging/claude-monitoring.svg ~/.local/share/icons/hicolor/scalable/apps/
+   setsid -f claude-monitoring
    ```
 
    If pip says `externally-managed-environment`, use
@@ -127,7 +132,7 @@ Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude
 ```sh
 sudo apt install build-essential devscripts debhelper dh-python pybuild-plugin-pyproject python3-setuptools
 dpkg-buildpackage -us -uc -b
-sudo apt install ../claude-usage-linux_*_all.deb
+sudo apt install ../claude-monitoring_*_all.deb
 ```
 
 </details>
@@ -136,15 +141,15 @@ sudo apt install ../claude-usage-linux_*_all.deb
 
 | Installed with | Remove with |
 |---|---|
-| installer, apt or .deb | `sudo apt remove claude-usage-linux` |
-| pip | `pip uninstall claude-usage-linux && rm ~/.config/autostart/claude-usage-linux.desktop ~/.local/share/applications/claude-usage-linux.desktop ~/.local/share/icons/hicolor/scalable/apps/claude-usage-linux.svg` |
+| installer, apt or .deb | `sudo apt remove claude-monitoring` |
+| pip | `pip uninstall claude-monitoring && rm ~/.config/autostart/claude-monitoring.desktop ~/.local/share/applications/claude-monitoring.desktop ~/.local/share/icons/hicolor/scalable/apps/claude-monitoring.svg` |
 
 To also remove the apt repository:
-`sudo rm /etc/apt/sources.list.d/claude-usage-linux.list /etc/apt/keyrings/claude-usage-linux.gpg`
+`sudo rm /etc/apt/sources.list.d/claude-monitoring.list /etc/apt/keyrings/claude-monitoring.gpg`
 
 ## 🔧 Configuration
 
-Set these as environment variables or in `~/.config/claude-usage-linux/config.json`.
+Set these as environment variables or in `~/.config/claude-monitoring/config.json`.
 If both are set, the environment variable wins.
 
 | Setting | Env | Default |
@@ -163,7 +168,7 @@ When rate-limited, it polls less often (up to every 15 minutes) until a request 
 | Startup error about typelibs | Install the [dependencies](#from-source-any-distro). |
 | "No terminal found" | Run `claude auth login` yourself, or set `TERMINAL`. |
 | Two icons in the panel | Update to 1.1.1 or later; it allows only one running copy. |
-| Icon disappears when the terminal closes | Start it with `setsid -f claude-usage-linux`, or from the applications menu. |
+| Icon disappears when the terminal closes | Start it with `setsid -f claude-monitoring`, or from the applications menu. |
 | "Offline" | It can't reach the API right now and will keep retrying. |
 | Boxes instead of coloured dots in the menu | Install an emoji font, e.g. `fonts-noto-color-emoji`. |
 
@@ -183,7 +188,7 @@ When rate-limited, it polls less often (up to every 15 minutes) until a request 
 - **Update now** downloads the installer from this repository; it sends nothing
   about you.
 
-All of this is in [`usage.py`](src/claude_usage_linux/usage.py) if you want to check.
+All of this is in [`usage.py`](src/claude_monitoring/usage.py) if you want to check.
 
 ## ⚠️ Caveats
 

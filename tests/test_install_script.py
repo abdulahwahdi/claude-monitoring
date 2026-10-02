@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "install.sh"
 ONE_LINER = (
-    "curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-usage-linux/main/install.sh | sh"
+    "curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-monitoring/main/install.sh | sh"
 )
 DEB = b"fake deb\n"
 
@@ -28,7 +28,7 @@ echo "curl $url" >> "$STUB_LOG"
 case "$url" in
     *.gpg) [ -n "${CURL_KEY_FAIL:-}" ] && exit 22; printf KEY > "$out" ;;
     *.deb) printf 'fake deb\\n' > "${url##*/}" ;;
-    *SHA256SUMS) printf '%s  claude-usage-linux_all.deb\\n' "$DEB_SHA" > SHA256SUMS ;;
+    *SHA256SUMS) printf '%s  claude-monitoring_all.deb\\n' "$DEB_SHA" > SHA256SUMS ;;
 esac
 """
 
@@ -73,24 +73,36 @@ class InstallScriptTests(unittest.TestCase):
 
     def test_adds_signed_repository_and_installs(self):
         log = self._run()
-        keyring = self.root / "etc/apt/keyrings/claude-usage-linux.gpg"
-        listing = self.root / "etc/apt/sources.list.d/claude-usage-linux.list"
+        keyring = self.root / "etc/apt/keyrings/claude-monitoring.gpg"
+        listing = self.root / "etc/apt/sources.list.d/claude-monitoring.list"
         self.assertEqual(keyring.read_text(), "KEY")
         self.assertEqual(
             listing.read_text(),
-            "deb [signed-by=/etc/apt/keyrings/claude-usage-linux.gpg] "
-            "https://abdulahwahdi.github.io/claude-usage-linux/ ./\n",
+            "deb [signed-by=/etc/apt/keyrings/claude-monitoring.gpg] "
+            "https://abdulahwahdi.github.io/claude-monitoring/ ./\n",
         )
-        self.assertEqual(log[-2:], ["apt-get update", "apt-get install -y claude-usage-linux"])
+        self.assertEqual(log[-2:], ["apt-get update", "apt-get install -y claude-monitoring"])
+
+    def test_removes_pre_rename_repository(self):
+        old_list = self.root / "etc/apt/sources.list.d/claude-usage-linux.list"
+        old_key = self.root / "etc/apt/keyrings/claude-usage-linux.gpg"
+        for path in (old_list, old_key):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("old")
+        log = self._run()
+        self.assertFalse(old_list.exists())
+        self.assertFalse(old_key.exists())
+        self.assertTrue((self.root / "etc/apt/sources.list.d/claude-monitoring.list").exists())
+        self.assertEqual(log[-1], "apt-get install -y claude-monitoring")
 
     def test_falls_back_to_release_deb_when_repository_missing(self):
         log = self._run(CURL_KEY_FAIL="1")
         self.assertFalse((self.root / "etc").exists())
         self.assertIn(
-            "curl https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/SHA256SUMS",
+            "curl https://github.com/abdulahwahdi/claude-monitoring/releases/latest/download/SHA256SUMS",
             log,
         )
-        self.assertRegex(log[-1], r"^apt-get install -y /.*/claude-usage-linux_all\.deb$")
+        self.assertRegex(log[-1], r"^apt-get install -y /.*/claude-monitoring_all\.deb$")
 
     def test_fallback_rejects_checksum_mismatch(self):
         result = subprocess.run(

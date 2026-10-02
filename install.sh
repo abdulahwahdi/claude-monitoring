@@ -1,8 +1,8 @@
 #!/bin/sh
-# Install claude-usage-linux on Debian/Ubuntu/Mint.
+# Install claude-monitoring on Debian/Ubuntu/Mint.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-usage-linux/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/abdulahwahdi/claude-monitoring/main/install.sh | sh
 #
 # Adds the signed apt repository and installs the package, so updates arrive
 # through apt upgrade. If the repository is not published yet, falls back to
@@ -10,10 +10,13 @@
 # itself.
 set -eu
 
-URL="https://abdulahwahdi.github.io/claude-usage-linux/"
-RELEASES="https://github.com/abdulahwahdi/claude-usage-linux/releases/latest/download/"
-KEYRING=/etc/apt/keyrings/claude-usage-linux.gpg
-LIST=/etc/apt/sources.list.d/claude-usage-linux.list
+URL="https://abdulahwahdi.github.io/claude-monitoring/"
+RELEASES="https://github.com/abdulahwahdi/claude-monitoring/releases/latest/download/"
+KEYRING=/etc/apt/keyrings/claude-monitoring.gpg
+LIST=/etc/apt/sources.list.d/claude-monitoring.list
+# Before 2.0.0 the project was called claude-usage-linux.
+OLD_KEYRING=/etc/apt/keyrings/claude-usage-linux.gpg
+OLD_LIST=/etc/apt/sources.list.d/claude-usage-linux.list
 
 die() {
     echo "error: $*" >&2
@@ -25,10 +28,21 @@ die() {
 start() {
     [ -z "$root" ] && [ "$(id -u)" -ne 0 ] || return 0
     [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ] || return 0
-    command -v claude-usage-linux >/dev/null 2>&1 || return 0
-    pgrep -u "$(id -u)" -f 'bin/claude-usage-linux' >/dev/null 2>&1 && return 0
-    setsid -f claude-usage-linux >/dev/null 2>&1 </dev/null &&
+    command -v claude-monitoring >/dev/null 2>&1 || return 0
+    pgrep -u "$(id -u)" -f 'bin/claude-monitoring' >/dev/null 2>&1 && return 0
+    setsid -f claude-monitoring >/dev/null 2>&1 </dev/null &&
         echo "Started; look for the icon in your panel."
+}
+
+# Drop the pre-2.0.0 apt source, whose URL no longer exists (apt update would
+# fail on it), and stop the old app. The new package replaces the old one.
+migrate() {
+    if [ -e "$root$OLD_LIST" ] || [ -e "$root$OLD_KEYRING" ]; then
+        echo "Migrating from claude-usage-linux"
+        $sudo rm -f "$root$OLD_LIST" "$root$OLD_KEYRING"
+    fi
+    [ -z "$root" ] || return 0
+    pkill -u "$(id -u)" -f 'bin/claude-usage-linux' >/dev/null 2>&1 || true
 }
 
 main() {
@@ -49,23 +63,25 @@ main() {
     tmp=$(mktemp -d)
     trap 'rm -rf "$tmp"' EXIT
 
-    if curl -fsSL "${URL}claude-usage-linux.gpg" -o "$tmp/claude-usage-linux.gpg"; then
-        echo "deb [signed-by=$KEYRING] $URL ./" > "$tmp/claude-usage-linux.list"
+    migrate
+
+    if curl -fsSL "${URL}claude-monitoring.gpg" -o "$tmp/claude-monitoring.gpg"; then
+        echo "deb [signed-by=$KEYRING] $URL ./" > "$tmp/claude-monitoring.list"
         $sudo install -d -m 0755 "$root$(dirname "$KEYRING")" "$root$(dirname "$LIST")"
-        $sudo install -m 0644 "$tmp/claude-usage-linux.gpg" "$root$KEYRING"
-        $sudo install -m 0644 "$tmp/claude-usage-linux.list" "$root$LIST"
+        $sudo install -m 0644 "$tmp/claude-monitoring.gpg" "$root$KEYRING"
+        $sudo install -m 0644 "$tmp/claude-monitoring.list" "$root$LIST"
         $sudo apt-get update
-        $sudo apt-get install -y claude-usage-linux
+        $sudo apt-get install -y claude-monitoring
         echo "Installed from the apt repository; update with: sudo apt update && sudo apt upgrade"
         start
     else
         echo "apt repository not available; installing the latest release .deb instead" >&2
         cd "$tmp"
-        curl -fsSLO "${RELEASES}claude-usage-linux_all.deb" && curl -fsSLO "${RELEASES}SHA256SUMS" ||
-            die "no published release found; build from source instead: https://github.com/abdulahwahdi/claude-usage-linux#from-source-any-distro"
+        curl -fsSLO "${RELEASES}claude-monitoring_all.deb" && curl -fsSLO "${RELEASES}SHA256SUMS" ||
+            die "no published release found; build from source instead: https://github.com/abdulahwahdi/claude-monitoring#from-source-any-distro"
         sha256sum -c --ignore-missing SHA256SUMS
         chmod 0755 "$tmp"
-        $sudo apt-get install -y "$tmp/claude-usage-linux_all.deb"
+        $sudo apt-get install -y "$tmp/claude-monitoring_all.deb"
         echo "Installed from the release .deb; it does not update itself, re-run this installer to update."
         start
     fi

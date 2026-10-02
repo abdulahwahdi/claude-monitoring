@@ -8,7 +8,7 @@ venv/
 debian/.debhelper/
 debian/*.debhelper*
 debian/*.substvars
-debian/claude-usage-linux/
+debian/claude-monitoring/
 debian/files
 *.deb
 *.buildinfo

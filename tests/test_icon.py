@@ -3,7 +3,7 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 
-from claude_usage_linux import icon
+from claude_monitoring import icon
 
 NS = "{http://www.w3.org/2000/svg}"
 

@@ -1,8 +1,8 @@
 import unittest
 from datetime import datetime, timedelta, timezone
 
-from claude_usage_linux import details
-from claude_usage_linux.usage import UsageWindow
+from claude_monitoring import details
+from claude_monitoring.usage import UsageWindow
 
 try:
     import cairo

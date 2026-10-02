@@ -1,7 +1,7 @@
 import threading
 import unittest
 
-from claude_usage_linux import login
+from claude_monitoring import login
 
 
 class FakeProc:

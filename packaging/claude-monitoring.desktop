@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Claude Usage
+Name=Claude Monitoring
 Comment=Show Claude 5-hour and weekly usage in the panel
-Exec=claude-usage-linux
-Icon=claude-usage-linux
+Exec=claude-monitoring
+Icon=claude-monitoring
 Terminal=false
 Categories=Utility;
 X-GNOME-Autostart-enabled=true
