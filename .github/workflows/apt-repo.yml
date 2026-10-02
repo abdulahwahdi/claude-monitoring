@@ -3,7 +3,7 @@
 #
 # NOTE: the `github-pages` environment must allow deployments from `v*` tags
 # (Settings > Environments > github-pages > deployment branches and tags), see
-# the Maintainer section of the README. Otherwise the deploy job is rejected.
+# docs/RELEASING.md. Otherwise the deploy job is rejected.
 name: apt-repo
 
 on:
@@ -90,7 +90,8 @@ jobs:
         run: |
           latest=$(gh release list --limit 1 --json tagName -q '.[].tagName')
           if [ -n "$latest" ]; then
-            gh release download --pattern 'claude-usage-linux_*_all.deb' --dir debs --clobber
+            # Tolerate releases without .deb assets (e.g. created by hand).
+            gh release download --pattern 'claude-usage-linux_*_all.deb' --dir debs --clobber || true
             rm -f debs/claude-usage-linux_all.deb
           fi
           cp ../claude-usage-linux_*.deb debs/

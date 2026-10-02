@@ -49,8 +49,8 @@ main() {
     else
         echo "apt repository not available; installing the latest release .deb instead" >&2
         cd "$tmp"
-        curl -fsSLO "${RELEASES}claude-usage-linux_all.deb"
-        curl -fsSLO "${RELEASES}SHA256SUMS"
+        curl -fsSLO "${RELEASES}claude-usage-linux_all.deb" && curl -fsSLO "${RELEASES}SHA256SUMS" ||
+            die "no published release found; build from source instead: https://github.com/abdulahwahdi/claude-usage-linux#from-source-any-distro"
         sha256sum -c --ignore-missing SHA256SUMS
         chmod 0755 "$tmp"
         $sudo apt-get install -y "$tmp/claude-usage-linux_all.deb"
