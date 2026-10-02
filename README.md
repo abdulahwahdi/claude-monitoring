@@ -104,9 +104,10 @@ Older versions are on the [Releases page](https://github.com/abdulahwahdi/claude
    git clone https://github.com/abdulahwahdi/claude-usage-linux.git
    cd claude-usage-linux
    pip install --user .
-   mkdir -p ~/.config/autostart ~/.local/share/applications
+   mkdir -p ~/.config/autostart ~/.local/share/applications ~/.local/share/icons/hicolor/scalable/apps
    cp packaging/claude-usage-linux.desktop ~/.config/autostart/
    cp packaging/claude-usage-linux.desktop ~/.local/share/applications/
+   cp packaging/claude-usage-linux.svg ~/.local/share/icons/hicolor/scalable/apps/
    setsid -f claude-usage-linux
    ```
 
@@ -129,7 +130,7 @@ sudo apt install ../claude-usage-linux_*_all.deb
 | Installed with | Remove with |
 |---|---|
 | installer, apt or .deb | `sudo apt remove claude-usage-linux` |
-| pip | `pip uninstall claude-usage-linux && rm ~/.config/autostart/claude-usage-linux.desktop ~/.local/share/applications/claude-usage-linux.desktop` |
+| pip | `pip uninstall claude-usage-linux && rm ~/.config/autostart/claude-usage-linux.desktop ~/.local/share/applications/claude-usage-linux.desktop ~/.local/share/icons/hicolor/scalable/apps/claude-usage-linux.svg` |
 
 To also remove the apt repository:
 `sudo rm /etc/apt/sources.list.d/claude-usage-linux.list /etc/apt/keyrings/claude-usage-linux.gpg`
