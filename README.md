@@ -170,6 +170,10 @@ Notes:
 
 ## Troubleshooting
 
+- *`apt update` or the key download returns 404 for the apt repository:* the
+  repository only exists after the `apt-repo` workflow has succeeded on a `v*` tag
+  (check the Actions tab; Pages must be enabled with Source: GitHub Actions). Until
+  then use the .deb from the Releases page, or see "Maintainer: publishing".
 - *No icon:* on GNOME install the AppIndicator extension; elsewhere check the panel
   has a status notifier / system tray applet.
 - *Startup error about typelibs:* install the dependencies above.
