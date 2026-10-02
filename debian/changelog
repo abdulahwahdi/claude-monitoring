@@ -1,3 +1,12 @@
+claude-usage-linux (1.1.0) unstable; urgency=medium
+
+  * Animated usage window with large 5-hour and weekly rings.
+  * Ring icons in the menu instead of emoji dots.
+  * App logo and applications menu entry.
+  * Installer starts the app in the background.
+
+ -- Abdulah Wahdi <abdulah.wahdi@gmail.com>  Fri, 02 Oct 2026 13:39:17 +0700
+
 claude-usage-linux (1.0.0) unstable; urgency=medium
 
   * First stable release.
